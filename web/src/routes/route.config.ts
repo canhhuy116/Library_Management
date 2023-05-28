@@ -3,7 +3,8 @@ import Books from '@/pages/Books';
 import Home from '@/pages/Home';
 import Members from '@/pages/Members';
 import Roles from '@/pages/Roles';
-import { HomeOutlined, UserOutlined, BookOutlined, TagsOutlined } from '@ant-design/icons';
+import { HomeOutlined, UserOutlined, BookOutlined, TagsOutlined, FormOutlined } from '@ant-design/icons';
+import LoanSlips from '@/pages/LoanSlips';
 
 export interface IRoute {
   path: string;
@@ -30,6 +31,14 @@ export const appRouters: any = [
     icon: BookOutlined,
     showInMenu: true,
     component: Books,
+  },
+  {
+    path: '/loanslips',
+    title: 'loanslips',
+    name: 'Phiếu mượn',
+    icon: FormOutlined,
+    showInMenu: true,
+    component: LoanSlips,
   },
   {
     path: '/members',
