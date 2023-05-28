@@ -1,26 +1,111 @@
 import React, { useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Pagination, Table, Typography } from 'antd';
+import { Card, Pagination, Table, Typography } from 'antd';
 import '@/assets/scss/pages/home.scss';
+import { BookOutlined, UndoOutlined, UserAddOutlined, UserOutlined } from '@ant-design/icons';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const Home = () => {
-  const labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-  const data = {
-    labels,
+  const dataReport = {
+    visitors: 532,
+    borrowed: 142,
+    returned: 100,
+    newMembers: 42,
+  };
+
+  const dataSourceReport = [
+    {
+      key: '1',
+      visitors: {
+        icon: <UserOutlined />,
+        value: dataReport.visitors,
+      },
+      borrowed: {
+        icon: <BookOutlined />,
+        value: dataReport.borrowed,
+      },
+      returned: {
+        icon: <UndoOutlined />,
+        value: dataReport.returned,
+      },
+      newMembers: {
+        icon: <UserAddOutlined />,
+        value: dataReport.newMembers,
+      },
+    },
+  ];
+
+  const columnsReport = [
+    {
+      title: 'Đọc giả đến thư viện',
+      dataIndex: 'visitors',
+      key: 'visitors',
+      align: 'center' as const,
+      render: (visitors: { icon: JSX.Element; value: number }) => (
+        <>
+          {visitors.icon}
+          <span>{visitors.value}</span>
+        </>
+      ),
+    },
+    {
+      title: 'Sách được mượn',
+      dataIndex: 'borrowed',
+      key: 'borrowed',
+      align: 'center' as const,
+      render: (borrowed: { icon: JSX.Element; value: number }) => (
+        <>
+          {borrowed.icon}
+          <span>{borrowed.value}</span>
+        </>
+      ),
+    },
+    {
+      title: 'Sách đã trả',
+      dataIndex: 'returned',
+      key: 'returned',
+      align: 'center' as const,
+      render: (returned: { icon: JSX.Element; value: number }) => (
+        <>
+          {returned.icon}
+          <span>{returned.value}</span>
+        </>
+      ),
+    },
+    {
+      title: 'Đọc giả mới',
+      dataIndex: 'newMembers',
+      key: 'newMembers',
+      align: 'center' as const,
+      render: (newMembers: { icon: JSX.Element; value: number }) => (
+        <>
+          {newMembers.icon}
+          <span>{newMembers.value}</span>
+        </>
+      ),
+    },
+  ];
+
+  const dataChart = {
+    visitors: [65, 59, 80, 81],
+    borrower: [28, 48, 40, 19],
+  };
+  const labelsChart = ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'];
+  const valueChart = {
+    labels: labelsChart,
     datasets: [
       {
-        label: 'Visitors',
+        label: 'Số lượng đọc giả đến thư viện',
         backgroundColor: 'rgb(75, 192, 192)',
-        data: [65, 59, 80, 81],
+        data: dataChart.visitors,
         stack: 'Stack 0',
       },
       {
-        label: 'Borrowers',
+        label: 'Số lượng đọc giả mượn sách',
         backgroundColor: 'rgb(53, 162, 235)',
-        data: [28, 48, 40, 19],
+        data: dataChart.borrower,
         stack: 'Stack 1',
       },
     ],
@@ -30,7 +115,7 @@ const Home = () => {
     plugins: {
       title: {
         display: true,
-        text: 'Number of Visitors and Borrowers per Week',
+        text: 'Biểu đồ thống kê',
       },
     },
     responsive: true,
@@ -48,13 +133,12 @@ const Home = () => {
     },
   };
 
-  const dataSource = [
+  const booksLoanData = [
     {
       key: '1',
       bookTitle: 'Book 1',
       borrower: 'John Doe',
       returnDate: '2023-06-01',
-      overdue: '1 day',
     },
     {
       key: '2',
@@ -68,50 +152,41 @@ const Home = () => {
       bookTitle: 'Book 3',
       borrower: 'John Doe',
       returnDate: '2023-06-01',
-      overdue: '1 day',
     },
     {
       key: '4',
       bookTitle: 'Book 4',
       borrower: 'John Doe',
       returnDate: '2023-06-01',
-      overdue: '1 day',
     },
     {
       key: '5',
       bookTitle: 'Book 5',
       borrower: 'John Doe',
       returnDate: '2023-06-01',
-      overdue: '1 day',
     },
     {
       key: '6',
       bookTitle: 'Book 6',
       borrower: 'John Doe',
       returnDate: '2023-06-01',
-      overdue: '1 day',
     },
   ];
 
   // Define the columns of the table
   const columns = [
     {
-      title: 'Book Title',
+      title: 'Tên sách',
       dataIndex: 'bookTitle',
       key: 'bookTitle',
     },
     {
-      title: 'Borrower',
+      title: 'Người mượn',
       dataIndex: 'borrower',
       key: 'borrower',
     },
     {
-      title: 'Overdue',
-      dataIndex: 'overdue',
-      key: 'overdue',
-    },
-    {
-      title: 'Return Date',
+      title: 'Ngày trả',
       dataIndex: 'returnDate',
       key: 'returnDate',
     },
@@ -121,8 +196,7 @@ const Home = () => {
 
   // Configure pagination
   const pageSize = 5;
-  const totalBooks = dataSource.length;
-  const totalPages = Math.ceil(totalBooks / pageSize);
+  const totalBooks = booksLoanData.length;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -133,13 +207,19 @@ const Home = () => {
   const endIndex = startIndex + pageSize;
 
   // Slice the data source to display only the books for the current page
-  const currentPageData = dataSource.slice(startIndex, endIndex);
+  const currentPageData = booksLoanData.slice(startIndex, endIndex);
 
   return (
     <div>
-      <Bar data={data} options={options} />
-      <div className="overdue-book-loan">
-        <Typography.Title level={2}>Overdue Books Loan</Typography.Title>
+      <Card
+        title={
+          <Table dataSource={dataSourceReport} columns={columnsReport} pagination={false} className="tableReport" />
+        }
+      >
+        <Bar data={valueChart} options={options} />
+      </Card>
+      <div className="booksLoan">
+        <Typography.Title level={2}>Sách đang được mượn</Typography.Title>
         <Table dataSource={currentPageData} columns={columns} pagination={false} />
         <Pagination
           current={currentPage}

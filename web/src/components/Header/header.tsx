@@ -50,7 +50,7 @@ const Header = ({ collapsed, toggle }: IHeaderProps) => {
       <Col style={{ padding: '0px 25px 0px 15px', textAlign: 'right', cursor: 'pointer' }} span={12}>
         <Dropdown arrow overlay={userDropdownMenu()} trigger={['click']}>
           <span className="username">
-            <span>Hello {user}!</span>
+            <span>Xin chào {user}!</span>
             <CaretDownOutlined />
           </span>
         </Dropdown>

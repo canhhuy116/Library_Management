@@ -1,3 +1,14 @@
-.overdue-book-loan {
+.booksLoan {
   margin: 20px 0;
+}
+
+.tableReport {
+  .tableReport td {
+    font-size: 1.6rem;
+    text-align: center;
+  }
+
+  .tableReport th {
+    font-size: 1rem;
+  }
 }
