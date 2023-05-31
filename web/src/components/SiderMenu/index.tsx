@@ -4,7 +4,7 @@ import { Avatar, Col, Layout, Menu } from 'antd';
 import AppLogo from '@/assets/images/logo.png';
 import { appRouters } from '@/routes/route.config';
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const { Sider } = Layout;
 
@@ -15,6 +15,8 @@ export interface ISiderMenuProps {
 
 const SiderMenu = (props: ISiderMenuProps) => {
   const { collapsed, onCollapse } = props;
+  const location = useLocation();
+
   return (
     <Sider
       trigger={null}
@@ -35,7 +37,7 @@ const SiderMenu = (props: ISiderMenuProps) => {
         </Col>
       )}
 
-      <Menu theme="dark" mode="inline" defaultSelectedKeys={['/']}>
+      <Menu theme="dark" mode="inline" defaultSelectedKeys={['/']} selectedKeys={[location.pathname]}>
         {appRouters
           .filter((item: any) => !item.isLayout && item.showInMenu)
           .map((route: any, index: number) => {
