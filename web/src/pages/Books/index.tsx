@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 
 const { Search } = Input;
 
-interface IBook {
+export interface IBook {
   id: number;
   name: string;
   category: string;
