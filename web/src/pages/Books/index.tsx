@@ -1,92 +1,45 @@
 import { Button, Card, DatePicker, Form, Input, Modal, Pagination, Popconfirm, Space, Table, Typography } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '@/assets/scss/pages/books.scss';
-import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import BookStore, { IBook } from '@/store/bookStore';
+import { inject } from 'mobx-react';
+import Stores from '@/store';
+import { set } from 'mobx';
 
 const { Search } = Input;
 
-export interface IBook {
-  id: number;
-  name: string;
-  category: string;
-  author: string;
-  status: boolean;
-  publicCationYear: number;
-  publisher: string;
-  importDate: dayjs.Dayjs;
+interface IBooksProps {
+  bookStore?: BookStore;
 }
 
-const booksDataInit: IBook[] = [
-  {
-    id: 1,
-    name: 'Sách 1',
-    category: 'Thể loại 1',
-    author: 'Tác giả 1',
-    status: true,
-    publicCationYear: 2021,
-    publisher: 'Nhà xuất bản 1',
-    importDate: dayjs('2021-08-01'),
-  },
-  {
-    id: 2,
-    name: 'Sách 2',
-    category: 'Thể loại 2',
-    author: 'Tác giả 2',
-    status: false,
-    publicCationYear: 2021,
-    publisher: 'Nhà xuất bản 2',
-    importDate: dayjs('2021-08-01'),
-  },
-  {
-    id: 3,
-    name: 'Sách 3',
-    category: 'Thể loại 1',
-    author: 'Tác giả 1',
-    status: true,
-    publicCationYear: 2021,
-    publisher: 'Nhà xuất bản 3',
-    importDate: dayjs('2021-08-01'),
-  },
-  {
-    id: 4,
-    name: 'Sách 4',
-    category: 'Thể loại 2',
-    author: 'Tác giả 1',
-    status: true,
-    publicCationYear: 2021,
-    publisher: 'Nhà xuất bản 4',
-    importDate: dayjs('2021-08-01'),
-  },
-  {
-    id: 5,
-    name: 'Sách 5',
-    category: 'Thể loại 1',
-    author: 'Tác giả 3',
-    status: false,
-    publicCationYear: 2021,
-    publisher: 'Nhà xuất bản 5',
-    importDate: dayjs('2021-09-01'),
-  },
-  {
-    id: 6,
-    name: 'Sách 6',
-    category: 'Thể loại 4',
-    author: 'Tác giả 1',
-    status: false,
-    publicCationYear: 2021,
-    publisher: 'Nhà xuất bản 6',
-    importDate: dayjs('2021-09-01'),
-  },
-];
-
-const Books: React.FC = () => {
-  const [booksData, setBooksData] = useState<IBook[]>(booksDataInit); // booksDataInit is defined below
+const Books: React.FC = ({ bookStore }: IBooksProps) => {
+  const [booksData, setBooksData] = useState<IBook[]>(); // booksDataInit is defined below
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [newBookForm] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedBook, setSelectedBook] = useState<IBook | null>(null); // The book object that is being viewed or edited
+  const [booksLoading, setBooksLoading] = useState(true);
+
+  const getAllBooks = async () => {
+    try {
+      await bookStore?.getAll();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setBooksLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getAllBooks();
+  }, []);
+
+  useEffect(() => {
+    setBooksData(bookStore?.booksData);
+  }, [bookStore?.booksData]);
 
   const columns = [
     {
@@ -120,11 +73,11 @@ const Books: React.FC = () => {
       dataIndex: 'id',
       key: 'actions',
       render: (id: number) => {
-        const record = booksData.find(book => book.id === id); // Find the corresponding book object
+        const record = booksData?.find(book => book.id === id); // Find the corresponding book object
         return record ? (
           <Space size="small">
             <Button type="link" onClick={() => viewBookDetails(record)}>
-              View
+              <EditOutlined />
             </Button>
             <Popconfirm
               title="Are you sure to delete this book?"
@@ -158,36 +111,52 @@ const Books: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    const updatedBooksData = booksData.filter(book => book.id !== id);
+    const updatedBooksData = booksData?.filter(book => book.id !== id);
     setBooksData(updatedBooksData);
   };
 
   const handleAddBook = () => {
-    newBookForm.validateFields().then(values => {
+    newBookForm.validateFields().then(async values => {
       const newBook = {
-        id: selectedBook ? selectedBook.id : booksData.length + 1,
+        id: booksData?.length ? booksData.length + 1 : 1,
         name: values.name,
         category: values.category,
         author: values.author,
-        status: selectedBook ? selectedBook.status : true,
+        status: true,
+        publicCationYear: values.publicationYear?.year(),
+        publisher: values.publisher,
+        importDate: values.importDate?.toDate(),
+      };
+      setBooksData(booksData ? [...booksData, newBook] : [newBook]);
+      // await bookStore?.createNewBook(newBook);
+      newBookForm.resetFields();
+      setIsModalVisible(false);
+    });
+  };
+
+  const handleUpdateBook = () => {
+    if (!selectedBook) return;
+    newBookForm.validateFields().then(values => {
+      const updatedBook = {
+        id: selectedBook.id,
+        name: values.name,
+        category: values.category,
+        author: values.author,
+        status: selectedBook.status,
         publicCationYear: values.publicationYear?.year(),
         publisher: values.publisher,
         importDate: values.importDate?.toDate(),
       };
       let updatedBooksData;
-      if (selectedBook) {
-        // Update existing book
+      if (booksData) {
         updatedBooksData = booksData.map(book => {
-          if (book.id === selectedBook.id) {
-            return { ...book, ...newBook };
+          if (book.id === updatedBook.id) {
+            return updatedBook;
           }
           return book;
         });
-      } else {
-        // Add new book
-        updatedBooksData = [...booksData, newBook];
+        setBooksData(updatedBooksData);
       }
-      setBooksData(updatedBooksData);
       newBookForm.resetFields();
       setIsModalVisible(false);
     });
@@ -210,7 +179,7 @@ const Books: React.FC = () => {
 
   // Configure pagination
   const pageSize = 5;
-  const totalBooks = booksData.length;
+  const totalBooks = booksData?.length;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -222,7 +191,7 @@ const Books: React.FC = () => {
 
   // Filter the booksData based on the search keyword
   const filteredData = searchKeyword
-    ? booksData.filter(
+    ? booksData?.filter(
         book =>
           book.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
           book.category.toLowerCase().includes(searchKeyword.toLowerCase()),
@@ -230,7 +199,7 @@ const Books: React.FC = () => {
     : booksData;
 
   // Slice the data source to display only the books for the current page
-  const currentPageData = filteredData.slice(startIndex, endIndex);
+  const currentPageData = filteredData?.slice(startIndex, endIndex);
 
   return (
     <div className="books">
@@ -240,11 +209,12 @@ const Books: React.FC = () => {
       </div>
       <Card
         className="books__list"
+        loading={booksLoading}
         title={
           <Space className="books__list__title">
             <Typography.Title level={3}>Danh sách sách</Typography.Title>
             <Typography.Title level={3}>Tổng số: {totalBooks}</Typography.Title>
-            <Typography.Title level={3}>Hiển thị: {currentPageData.length}</Typography.Title>
+            <Typography.Title level={3}>Hiển thị: {currentPageData?.length}</Typography.Title>
             <Button
               type="primary"
               size="large"
@@ -264,7 +234,7 @@ const Books: React.FC = () => {
               Hủy
             </Button>,
             selectedBook ? (
-              <Button key="edit" type="primary" onClick={handleAddBook}>
+              <Button key="edit" type="primary" onClick={handleUpdateBook}>
                 Câp nhật
               </Button>
             ) : (
@@ -325,7 +295,7 @@ const Books: React.FC = () => {
         <Pagination
           current={currentPage}
           pageSize={pageSize}
-          total={filteredData.length}
+          total={filteredData?.length}
           onChange={handlePageChange}
           style={{ marginTop: 16, textAlign: 'right' }}
         />
@@ -334,4 +304,4 @@ const Books: React.FC = () => {
   );
 };
 
-export default Books;
+export default inject(Stores.BookStore)(Books);

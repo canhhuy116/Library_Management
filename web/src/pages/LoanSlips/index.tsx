@@ -2,8 +2,8 @@ import { DeleteOutlined, FundViewOutlined } from '@ant-design/icons';
 import { Card, Space, Typography, Button, Modal, Table, Pagination, Popconfirm } from 'antd';
 import { useState } from 'react';
 import dayjs from 'dayjs';
-import { IBook } from '../Books';
 import '@/assets/scss/pages/loanSlips.scss';
+import { IBook } from '@/store/bookStore';
 
 interface ILoanSlips {
   id: number;
@@ -143,7 +143,7 @@ const LoanSlips = () => {
               <FundViewOutlined />
             </Button>
             <Popconfirm
-              title="Are you sure to delete this book?"
+              title="Are you sure to delete this loan slip?"
               onConfirm={() => handleDelete(id)}
               okText="Yes"
               cancelText="No"
