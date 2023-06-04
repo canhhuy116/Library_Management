@@ -6,7 +6,6 @@ import dayjs from 'dayjs';
 import BookStore, { IBook } from '@/store/bookStore';
 import { inject } from 'mobx-react';
 import Stores from '@/store';
-import { set } from 'mobx';
 
 const { Search } = Input;
 

@@ -1,0 +1,34 @@
+{
+  "booksLoan": [
+    {
+      "bookTitle": "Book 1",
+      "borrower": "John Doe",
+      "returnDate": "2023-06-01"
+    },
+    {
+      "bookTitle": "Book 2",
+      "borrower": "Jane Smith",
+      "returnDate": "2023-06-05"
+    },
+    {
+      "bookTitle": "Book 3",
+      "borrower": "John Doe",
+      "returnDate": "2023-06-01"
+    },
+    {
+      "bookTitle": "Book 4",
+      "borrower": "John Doe",
+      "returnDate": "2023-06-01"
+    },
+    {
+      "bookTitle": "Book 5",
+      "borrower": "John Doe",
+      "returnDate": "2023-06-01"
+    },
+    {
+      "bookTitle": "Book 6",
+      "borrower": "John Doe",
+      "returnDate": "2023-06-01"
+    }
+  ]
+}

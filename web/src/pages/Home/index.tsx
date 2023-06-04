@@ -1,38 +1,61 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Card, Pagination, Table, Typography } from 'antd';
 import '@/assets/scss/pages/home.scss';
 import { BookOutlined, UndoOutlined, UserAddOutlined, UserOutlined } from '@ant-design/icons';
+import { inject } from 'mobx-react';
+import Stores from '@/store';
+import ReportStore, { IChartData, IReportData } from '@/store/reportStore';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const Home = () => {
-  const dataReport = {
-    visitors: 532,
-    borrowed: 142,
-    returned: 100,
-    newMembers: 42,
+interface IHomeProps {
+  reportStore?: ReportStore;
+}
+
+const Home = ({ reportStore }: IHomeProps) => {
+  const [dataReport, setDataReport] = useState<IReportData>();
+  const [dataChart, setDataChart] = useState<IChartData>();
+  const [loading, setLoading] = useState(true);
+
+  const getDataReport = async () => {
+    try {
+      await reportStore?.getData();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    getDataReport();
+  }, []);
+
+  useEffect(() => {
+    setDataReport(reportStore?.dataReport);
+    setDataChart(reportStore?.dataChart);
+  }, [reportStore?.dataReport, reportStore?.dataChart]);
 
   const dataSourceReport = [
     {
       key: '1',
       visitors: {
         icon: <UserOutlined />,
-        value: dataReport.visitors,
+        value: dataReport?.visitors,
       },
       borrowed: {
         icon: <BookOutlined />,
-        value: dataReport.borrowed,
+        value: dataReport?.borrowed,
       },
       returned: {
         icon: <UndoOutlined />,
-        value: dataReport.returned,
+        value: dataReport?.returned,
       },
       newMembers: {
         icon: <UserAddOutlined />,
-        value: dataReport.newMembers,
+        value: dataReport?.newMembers,
       },
     },
   ];
@@ -88,10 +111,6 @@ const Home = () => {
     },
   ];
 
-  const dataChart = {
-    visitors: [65, 59, 80, 81],
-    borrower: [28, 48, 40, 19],
-  };
   const labelsChart = ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'];
   const valueChart = {
     labels: labelsChart,
@@ -99,13 +118,13 @@ const Home = () => {
       {
         label: 'Số lượng đọc giả đến thư viện',
         backgroundColor: 'rgb(75, 192, 192)',
-        data: dataChart.visitors,
+        data: dataChart?.visitors,
         stack: 'Stack 0',
       },
       {
         label: 'Số lượng đọc giả mượn sách',
         backgroundColor: 'rgb(53, 162, 235)',
-        data: dataChart.borrower,
+        data: dataChart?.borrowers,
         stack: 'Stack 1',
       },
     ],
@@ -212,14 +231,14 @@ const Home = () => {
   return (
     <div>
       <Card
+        loading={loading}
         title={
           <Table dataSource={dataSourceReport} columns={columnsReport} pagination={false} className="tableReport" />
         }
       >
         <Bar data={valueChart} options={options} />
       </Card>
-      <div className="booksLoan">
-        <Typography.Title level={2}>Sách đang được mượn</Typography.Title>
+      <Card className="booksLoan" title={<Typography.Title level={2}>Sách đang được mượn</Typography.Title>}>
         <Table dataSource={currentPageData} columns={columns} pagination={false} />
         <Pagination
           current={currentPage}
@@ -228,9 +247,9 @@ const Home = () => {
           onChange={handlePageChange}
           style={{ marginTop: 16, textAlign: 'right' }}
         />
-      </div>
+      </Card>
     </div>
   );
 };
 
-export default Home;
+export default inject(Stores.ReportStore)(Home);
