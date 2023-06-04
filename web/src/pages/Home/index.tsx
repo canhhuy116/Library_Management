@@ -7,21 +7,32 @@ import { BookOutlined, UndoOutlined, UserAddOutlined, UserOutlined } from '@ant-
 import { inject } from 'mobx-react';
 import Stores from '@/store';
 import ReportStore, { IChartData, IReportData } from '@/store/reportStore';
+import LoanSlipStore, { IBooksLoan } from '@/store/loanSlipStore';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface IHomeProps {
   reportStore?: ReportStore;
+  loanSlipStore: LoanSlipStore;
 }
 
-const Home = ({ reportStore }: IHomeProps) => {
+const Home = ({ reportStore, loanSlipStore }: IHomeProps) => {
   const [dataReport, setDataReport] = useState<IReportData>();
   const [dataChart, setDataChart] = useState<IChartData>();
+  const [booksLoanData, setBooksLoanData] = useState<IBooksLoan[]>([]);
   const [loading, setLoading] = useState(true);
 
   const getDataReport = async () => {
     try {
       await reportStore?.getData();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getBooksLoanData = async () => {
+    try {
+      await loanSlipStore?.getBooksLoan();
     } catch (error) {
       console.log(error);
     } finally {
@@ -31,11 +42,13 @@ const Home = ({ reportStore }: IHomeProps) => {
 
   useEffect(() => {
     getDataReport();
+    getBooksLoanData();
   }, []);
 
   useEffect(() => {
     setDataReport(reportStore?.dataReport);
     setDataChart(reportStore?.dataChart);
+    setBooksLoanData(loanSlipStore?.booksLoan);
   }, [reportStore?.dataReport, reportStore?.dataChart]);
 
   const dataSourceReport = [
@@ -152,46 +165,6 @@ const Home = ({ reportStore }: IHomeProps) => {
     },
   };
 
-  const booksLoanData = [
-    {
-      key: '1',
-      bookTitle: 'Book 1',
-      borrower: 'John Doe',
-      returnDate: '2023-06-01',
-    },
-    {
-      key: '2',
-      bookTitle: 'Book 2',
-      borrower: 'Jane Smith',
-      returnDate: '2023-06-05',
-      overdue: '5 days',
-    },
-    {
-      key: '3',
-      bookTitle: 'Book 3',
-      borrower: 'John Doe',
-      returnDate: '2023-06-01',
-    },
-    {
-      key: '4',
-      bookTitle: 'Book 4',
-      borrower: 'John Doe',
-      returnDate: '2023-06-01',
-    },
-    {
-      key: '5',
-      bookTitle: 'Book 5',
-      borrower: 'John Doe',
-      returnDate: '2023-06-01',
-    },
-    {
-      key: '6',
-      bookTitle: 'Book 6',
-      borrower: 'John Doe',
-      returnDate: '2023-06-01',
-    },
-  ];
-
   // Define the columns of the table
   const columns = [
     {
@@ -252,4 +225,4 @@ const Home = ({ reportStore }: IHomeProps) => {
   );
 };
 
-export default inject(Stores.ReportStore)(Home);
+export default inject(Stores.ReportStore, Stores.LoanSlipStore)(Home);
