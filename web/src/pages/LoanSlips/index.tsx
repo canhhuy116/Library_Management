@@ -1,8 +1,21 @@
 import { DeleteOutlined, FundViewOutlined } from '@ant-design/icons';
-import { Card, Space, Typography, Button, Modal, Table, Pagination, Popconfirm } from 'antd';
+import {
+  Card,
+  Space,
+  Typography,
+  Button,
+  Modal,
+  Table,
+  Pagination,
+  Popconfirm,
+  DatePicker,
+  Form,
+  Input,
+  Select,
+} from 'antd';
 import { useEffect, useState } from 'react';
 import '@/assets/scss/pages/loanSlips.scss';
-import { IBook } from '@/store/bookStore';
+import BookStore, { IBook } from '@/store/bookStore';
 import LoanSlipStore, { ILoanSlip } from '@/store/loanSlipStore';
 import { inject } from 'mobx-react';
 import Stores from '@/store';
@@ -10,14 +23,18 @@ import dayjs from 'dayjs';
 
 interface ILoanSlipsProps {
   loanSlipStore: LoanSlipStore;
+  bookStore: BookStore;
 }
 
-const LoanSlips = ({ loanSlipStore }: ILoanSlipsProps) => {
+const LoanSlips = ({ loanSlipStore, bookStore }: ILoanSlipsProps) => {
   const [loanSlipsData, setLoanSlipsData] = useState<ILoanSlip[]>([]); // booksDataInit is defined below
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalCreateLoanSlipVisible, setIsModalCreateLoanSlipVisible] = useState(false);
   const [selectedLoanSlips, setSelectedLoanSlips] = useState<ILoanSlip | null>(null);
   const [loading, setLoading] = useState(true);
+  const [newLoanSlipForm] = Form.useForm();
+  const [searchKeyword, setSearchKeyword] = useState('');
 
   const getLoanSlipsData = async () => {
     try {
@@ -31,6 +48,7 @@ const LoanSlips = ({ loanSlipStore }: ILoanSlipsProps) => {
 
   useEffect(() => {
     getLoanSlipsData();
+    bookStore?.getAll();
   }, []);
 
   useEffect(() => {
@@ -111,68 +129,130 @@ const LoanSlips = ({ loanSlipStore }: ILoanSlipsProps) => {
   const currentPageData = loanSlipsData.slice(startIndex, endIndex);
 
   return (
-    <Card
-      className="loanSlips"
-      loading={loading}
-      title={
-        <Space className="loanSlips__title">
-          <Typography.Title level={3}>Danh sách phiếu mượn</Typography.Title>
-          <Typography.Title level={3}>Tổng số: {totalBooks}</Typography.Title>
-          <Typography.Title level={3}>Hiển thị: {currentPageData.length}</Typography.Title>
-        </Space>
-      }
-    >
-      <Modal open={isModalVisible} onCancel={handleCancel} onOk={handleCancel}>
-        <Typography.Title level={2}>Phiếu mượn sách</Typography.Title>
-        <Typography.Title level={3}>Tên đọc giả: {selectedLoanSlips?.borrower}</Typography.Title>
-        <Typography.Title level={3}>
-          Ngày mượn: {dayjs(selectedLoanSlips?.borrowDate).format('DD/MM/YYYY')}
-        </Typography.Title>
+    <>
+      <Typography.Title level={2}>Quản lý phiếu mượn</Typography.Title>
+      <Button type="primary" onClick={() => setIsModalCreateLoanSlipVisible(true)}>
+        Lập phiếu mượn
+      </Button>
+      <Modal
+        title="Basic Modal"
+        open={isModalCreateLoanSlipVisible}
+        onCancel={() => setIsModalCreateLoanSlipVisible(false)}
+        footer={[
+          <Button key="back" onClick={() => setIsModalCreateLoanSlipVisible(false)}>
+            Hủy
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            onClick={() => {
+              newLoanSlipForm.validateFields().then(values => {
+                newLoanSlipForm.resetFields();
+                setIsModalCreateLoanSlipVisible(false);
+                console.log(values);
+              });
+            }}
+          >
+            Lập phiếu mượn
+          </Button>,
+        ]}
+      >
+        <Form form={newLoanSlipForm} layout="vertical">
+          <Form.Item
+            name="borrower"
+            label="Tên độc giả"
+            rules={[{ required: true, message: 'Vui lòng nhập tên độc giả' }]}
+          >
+            <Input placeholder="Tên đọc giả" />
+          </Form.Item>
+          <Form.Item
+            name="borrowDate"
+            label="Ngày lập phiếu"
+            rules={[{ required: true, message: 'Vui lòng chọn ngày lập phiếu' }]}
+          >
+            <DatePicker placeholder="Ngày lập phiếu" />
+          </Form.Item>
+          <Form.Item name="books" label="Sách mượn" rules={[{ required: true, message: 'Vui lòng nhập sách mượn' }]}>
+            <Select
+              mode="multiple"
+              placeholder="Sách mượn"
+              allowClear
+              onSearch={setSearchKeyword} // Update the search keyword when input changes
+            >
+              {bookStore.booksData
+                .filter((book: IBook) => book.status && book.name.toLowerCase().includes(searchKeyword.toLowerCase()))
+                .map((book: IBook) => (
+                  <Select.Option key={book.id} value={book.id}>
+                    {book.id} - {book.name}
+                  </Select.Option>
+                ))}
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Card
+        className="loanSlips"
+        loading={loading}
+        title={
+          <Space className="loanSlips__title">
+            <Typography.Title level={3}>Danh sách phiếu mượn</Typography.Title>
+            <Typography.Title level={3}>Tổng số: {totalBooks}</Typography.Title>
+            <Typography.Title level={3}>Hiển thị: {currentPageData.length}</Typography.Title>
+          </Space>
+        }
+      >
+        <Modal open={isModalVisible} onCancel={handleCancel} onOk={handleCancel}>
+          <Typography.Title level={2}>Phiếu mượn sách</Typography.Title>
+          <Typography.Title level={3}>Tên đọc giả: {selectedLoanSlips?.borrower}</Typography.Title>
+          <Typography.Title level={3}>
+            Ngày mượn: {dayjs(selectedLoanSlips?.borrowDate).format('DD/MM/YYYY')}
+          </Typography.Title>
+          <Table
+            dataSource={selectedLoanSlips?.books}
+            columns={[
+              {
+                title: 'STT',
+                dataIndex: 'id',
+                key: 'id',
+              },
+              {
+                title: 'Tên sách',
+                dataIndex: 'name',
+                key: 'name',
+              },
+              {
+                title: 'Thể loại',
+                dataIndex: 'category',
+                key: 'category',
+              },
+              {
+                title: 'Tác giả',
+                dataIndex: 'author',
+                key: 'author',
+              },
+            ]}
+            bordered={true}
+            pagination={false}
+            rowKey={record => record.id}
+          />
+        </Modal>
         <Table
-          dataSource={selectedLoanSlips?.books}
-          columns={[
-            {
-              title: 'STT',
-              dataIndex: 'id',
-              key: 'id',
-            },
-            {
-              title: 'Tên sách',
-              dataIndex: 'name',
-              key: 'name',
-            },
-            {
-              title: 'Thể loại',
-              dataIndex: 'category',
-              key: 'category',
-            },
-            {
-              title: 'Tác giả',
-              dataIndex: 'author',
-              key: 'author',
-            },
-          ]}
+          dataSource={currentPageData}
+          columns={columns}
           bordered={true}
           pagination={false}
           rowKey={record => record.id}
         />
-      </Modal>
-      <Table
-        dataSource={currentPageData}
-        columns={columns}
-        bordered={true}
-        pagination={false}
-        rowKey={record => record.id}
-      />
-      <Pagination
-        current={currentPage}
-        pageSize={pageSize}
-        total={loanSlipsData.length}
-        onChange={handlePageChange}
-        style={{ marginTop: 16, textAlign: 'right' }}
-      />
-    </Card>
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={loanSlipsData.length}
+          onChange={handlePageChange}
+          style={{ marginTop: 16, textAlign: 'right' }}
+        />
+      </Card>
+    </>
   );
 };
 
-export default inject(Stores.LoanSlipStore)(LoanSlips);
+export default inject(Stores.LoanSlipStore, Stores.BookStore)(LoanSlips);
