@@ -1,118 +1,41 @@
 import { DeleteOutlined, FundViewOutlined } from '@ant-design/icons';
 import { Card, Space, Typography, Button, Modal, Table, Pagination, Popconfirm } from 'antd';
-import { useState } from 'react';
-import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
 import '@/assets/scss/pages/loanSlips.scss';
 import { IBook } from '@/store/bookStore';
+import LoanSlipStore, { ILoanSlip } from '@/store/loanSlipStore';
+import { inject } from 'mobx-react';
+import Stores from '@/store';
+import dayjs from 'dayjs';
 
-interface ILoanSlips {
-  id: number;
-  borrower: string;
-  borrowerId: number;
-  books: IBook[];
-  borrowDate: dayjs.Dayjs;
+interface ILoanSlipsProps {
+  loanSlipStore: LoanSlipStore;
 }
 
-const loanSlipsDataInit: ILoanSlips[] = [
-  {
-    id: 1,
-    borrower: 'Nguyễn Văn A',
-    borrowerId: 1,
-    books: [
-      {
-        id: 1,
-        name: 'Sách 1',
-        category: 'Thể loại 1',
-        author: 'Tác giả 1',
-        status: true,
-        publicCationYear: 2021,
-        publisher: 'Nhà xuất bản 1',
-        importDate: dayjs('2021-08-01'),
-      },
-      {
-        id: 2,
-        name: 'Sách 2',
-        category: 'Thể loại 2',
-        author: 'Tác giả 2',
-        status: false,
-        publicCationYear: 2021,
-        publisher: 'Nhà xuất bản 2',
-        importDate: dayjs('2021-08-01'),
-      },
-    ],
-    borrowDate: dayjs('2021-08-01'),
-  },
-  {
-    id: 2,
-    borrower: 'Nguyễn Văn B',
-    borrowerId: 2,
-    books: [
-      {
-        id: 1,
-        name: 'Sách 1',
-        category: 'Thể loại 1',
-        author: 'Tác giả 1',
-        status: true,
-        publicCationYear: 2021,
-        publisher: 'Nhà xuất bản 1',
-        importDate: dayjs('2021-08-01'),
-      },
-    ],
-    borrowDate: dayjs('2021-08-01'),
-  },
-  {
-    id: 3,
-    borrower: 'Nguyễn Văn C',
-    borrowerId: 3,
-    books: [
-      {
-        id: 2,
-        name: 'Sách 2',
-        category: 'Thể loại 2',
-        author: 'Tác giả 2',
-        status: false,
-        publicCationYear: 2021,
-        publisher: 'Nhà xuất bản 2',
-        importDate: dayjs('2021-08-01'),
-      },
-    ],
-    borrowDate: dayjs('2021-08-01'),
-  },
-  {
-    id: 4,
-    borrower: 'Nguyễn Văn D',
-    borrowerId: 4,
-    books: [
-      {
-        id: 5,
-        name: 'Sách 5',
-        category: 'Thể loại 1',
-        author: 'Tác giả 3',
-        status: false,
-        publicCationYear: 2021,
-        publisher: 'Nhà xuất bản 5',
-        importDate: dayjs('2021-09-01'),
-      },
-      {
-        id: 6,
-        name: 'Sách 6',
-        category: 'Thể loại 4',
-        author: 'Tác giả 1',
-        status: false,
-        publicCationYear: 2021,
-        publisher: 'Nhà xuất bản 6',
-        importDate: dayjs('2021-09-01'),
-      },
-    ],
-    borrowDate: dayjs('2021-08-01'),
-  },
-];
-
-const LoanSlips = () => {
-  const [loanSlipsData, setLoanSlipsData] = useState<ILoanSlips[]>(loanSlipsDataInit); // booksDataInit is defined below
+const LoanSlips = ({ loanSlipStore }: ILoanSlipsProps) => {
+  const [loanSlipsData, setLoanSlipsData] = useState<ILoanSlip[]>([]); // booksDataInit is defined below
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedLoanSlips, setSelectedLoanSlips] = useState<ILoanSlips | null>(null);
+  const [selectedLoanSlips, setSelectedLoanSlips] = useState<ILoanSlip | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const getLoanSlipsData = async () => {
+    try {
+      await loanSlipStore?.getAll();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getLoanSlipsData();
+  }, []);
+
+  useEffect(() => {
+    setLoanSlipsData(loanSlipStore?.loanSlips);
+  }, [loanSlipStore?.loanSlips]);
 
   const columns = [
     {
@@ -158,7 +81,7 @@ const LoanSlips = () => {
     },
   ];
 
-  const viewLoanSlipDetail = (loanSlip: ILoanSlips) => {
+  const viewLoanSlipDetail = (loanSlip: ILoanSlip) => {
     setSelectedLoanSlips(loanSlip);
     setIsModalVisible(true);
   };
@@ -190,6 +113,7 @@ const LoanSlips = () => {
   return (
     <Card
       className="loanSlips"
+      loading={loading}
       title={
         <Space className="loanSlips__title">
           <Typography.Title level={3}>Danh sách phiếu mượn</Typography.Title>
@@ -201,7 +125,9 @@ const LoanSlips = () => {
       <Modal open={isModalVisible} onCancel={handleCancel} onOk={handleCancel}>
         <Typography.Title level={2}>Phiếu mượn sách</Typography.Title>
         <Typography.Title level={3}>Tên đọc giả: {selectedLoanSlips?.borrower}</Typography.Title>
-        <Typography.Title level={3}>Ngày mượn: {selectedLoanSlips?.borrowDate.format('DD/MM/YYYY')}</Typography.Title>
+        <Typography.Title level={3}>
+          Ngày mượn: {dayjs(selectedLoanSlips?.borrowDate).format('DD/MM/YYYY')}
+        </Typography.Title>
         <Table
           dataSource={selectedLoanSlips?.books}
           columns={[
@@ -249,4 +175,4 @@ const LoanSlips = () => {
   );
 };
 
-export default LoanSlips;
+export default inject(Stores.LoanSlipStore)(LoanSlips);
