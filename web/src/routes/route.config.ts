@@ -5,6 +5,8 @@ import Members from '@/pages/Members';
 import Roles from '@/pages/Roles';
 import { HomeOutlined, UserOutlined, BookOutlined, TagsOutlined, FormOutlined } from '@ant-design/icons';
 import LoanSlips from '@/pages/LoanSlips';
+import LoginPage from '@/pages/Login';
+import RegisterPage from '@/pages/Register';
 
 export interface IRoute {
   path: string;
@@ -12,10 +14,27 @@ export interface IRoute {
   name: string;
   icon: any;
   showInMenu: boolean;
-  component: () => JSX.Element;
+  component: React.ComponentType<any>;
 }
 
-export const appRouters: any = [
+export const authRouter: any = [
+  {
+    path: 'login',
+    name: 'Đăng nhập',
+    title: 'Login',
+    component: LoginPage,
+    showInMenu: false,
+  },
+  {
+    path: 'register',
+    name: 'Đăng ký',
+    title: 'Register',
+    component: RegisterPage,
+    showInMenu: false,
+  },
+];
+
+export const appRouters: IRoute[] = [
   {
     path: '/',
     title: 'home',
@@ -66,4 +85,4 @@ export const appRouters: any = [
   },
 ];
 
-export const routers = [...appRouters];
+export const routers = [...authRouter, ...appRouters];
