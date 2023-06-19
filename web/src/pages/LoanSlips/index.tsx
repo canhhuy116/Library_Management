@@ -1,18 +1,5 @@
 import { DeleteOutlined, FundViewOutlined } from '@ant-design/icons';
-import {
-  Card,
-  Space,
-  Typography,
-  Button,
-  Modal,
-  Table,
-  Pagination,
-  Popconfirm,
-  DatePicker,
-  Form,
-  Input,
-  Select,
-} from 'antd';
+import { Card, Space, Typography, Button, Modal, Table, Pagination, Popconfirm, DatePicker, Form, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import '@/assets/scss/pages/loanSlips.scss';
 import BookStore, { IBook } from '@/store/bookStore';
@@ -20,13 +7,15 @@ import LoanSlipStore, { ILoanSlip } from '@/store/loanSlipStore';
 import { inject } from 'mobx-react';
 import Stores from '@/store';
 import dayjs from 'dayjs';
+import MemberStore, { IMember } from '@/store/memberStore';
 
 interface ILoanSlipsProps {
   loanSlipStore: LoanSlipStore;
   bookStore: BookStore;
+  memberStore?: MemberStore;
 }
 
-const LoanSlips = ({ loanSlipStore, bookStore }: ILoanSlipsProps) => {
+const LoanSlips = ({ loanSlipStore, bookStore, memberStore }: ILoanSlipsProps) => {
   const [loanSlipsData, setLoanSlipsData] = useState<ILoanSlip[]>([]); // booksDataInit is defined below
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -35,6 +24,7 @@ const LoanSlips = ({ loanSlipStore, bookStore }: ILoanSlipsProps) => {
   const [loading, setLoading] = useState(true);
   const [newLoanSlipForm] = Form.useForm();
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchMemberKeyword, setSearchMemberKeyword] = useState('');
 
   const getLoanSlipsData = async () => {
     try {
@@ -48,8 +38,13 @@ const LoanSlips = ({ loanSlipStore, bookStore }: ILoanSlipsProps) => {
 
   useEffect(() => {
     getLoanSlipsData();
-    bookStore?.getAll();
-  }, []);
+    if (!bookStore?.booksData.length) {
+      bookStore?.getAll();
+    }
+    if (!memberStore?.memberData.length) {
+      memberStore?.getAll();
+    }
+  }, [bookStore, memberStore, getLoanSlipsData]);
 
   useEffect(() => {
     setLoanSlipsData(loanSlipStore?.loanSlips);
@@ -160,10 +155,28 @@ const LoanSlips = ({ loanSlipStore, bookStore }: ILoanSlipsProps) => {
         <Form form={newLoanSlipForm} layout="vertical">
           <Form.Item
             name="borrower"
-            label="Tên độc giả"
-            rules={[{ required: true, message: 'Vui lòng nhập tên độc giả' }]}
+            label="Mã độc giả"
+            rules={[{ required: true, message: 'Vui lòng chọn mã độc giả' }]}
           >
-            <Input placeholder="Tên đọc giả" />
+            <Select
+              mode="multiple"
+              placeholder="Mã độc giả"
+              allowClear
+              onSearch={setSearchMemberKeyword} // Update the search keyword when input changes
+            >
+              {memberStore?.memberData
+                .filter((member: IMember) =>
+                  searchMemberKeyword
+                    ? member.name.toLowerCase().includes(searchMemberKeyword.toLowerCase()) ||
+                      member.id === Number(searchMemberKeyword)
+                    : true,
+                )
+                .map((member: IMember) => (
+                  <Select.Option key={member.id} value={member.id}>
+                    {`${member.id} - ${member.name}`}
+                  </Select.Option>
+                ))}
+            </Select>
           </Form.Item>
           <Form.Item
             name="borrowDate"
@@ -183,7 +196,7 @@ const LoanSlips = ({ loanSlipStore, bookStore }: ILoanSlipsProps) => {
                 .filter((book: IBook) => book.status && book.name.toLowerCase().includes(searchKeyword.toLowerCase()))
                 .map((book: IBook) => (
                   <Select.Option key={book.id} value={book.id}>
-                    {book.id} - {book.name}
+                    {`${book.id} - ${book.name}`}
                   </Select.Option>
                 ))}
             </Select>
@@ -255,4 +268,4 @@ const LoanSlips = ({ loanSlipStore, bookStore }: ILoanSlipsProps) => {
   );
 };
 
-export default inject(Stores.LoanSlipStore, Stores.BookStore)(LoanSlips);
+export default inject(Stores.LoanSlipStore, Stores.BookStore, Stores.MemberStore)(LoanSlips);
