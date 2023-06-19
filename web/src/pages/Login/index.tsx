@@ -2,11 +2,32 @@ import { Form, Input, Button, Avatar, Col, Row, Checkbox } from 'antd';
 import AppLogo from '@/assets/images/logo.png';
 import '@/assets/scss/pages/login.scss';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import authService from '@/service/authService';
+import { useSignIn } from 'react-auth-kit';
 
 const LoginPage = () => {
-  const onFinish = (values: any) => {
+  const signIn = useSignIn();
+  const navigate = useNavigate();
+
+  const onFinish = async (values: any) => {
     console.log('Received values of form: ', values);
+    const res = await authService.login();
+    if (signIn) {
+      const signInResult = signIn({
+        token: res.data.token,
+        expiresIn: res.data.expiresIn,
+        tokenType: 'Bearer',
+        authState: res.data.userId,
+      });
+
+      if (signInResult) {
+        // Redirect to home page
+        navigate('/');
+      } else {
+        // Throw error
+      }
+    }
   };
 
   return (

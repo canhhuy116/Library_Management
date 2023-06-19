@@ -1,13 +1,17 @@
-import React from 'react';
 import { RouteObject } from 'react-router-dom';
 import AppLayout from '@/pages/layout';
 import { IRoute, appRouters, authRouter } from '@/routes/route.config';
 import AuthLayout from '@/pages/layout/authLayout';
+import PrivateRoute from './PrivateRoute';
 
 export default [
   {
     path: '/',
-    element: <AppLayout />,
+    element: (
+      <PrivateRoute loginPath="/auth/login">
+        <AppLayout />
+      </PrivateRoute>
+    ),
     children: appRouters.map((route: IRoute) => {
       return {
         path: route.path,

@@ -4,6 +4,7 @@ import { IBook } from './bookStore';
 import loanSlipService from '@/service/loanSlipService';
 
 export interface IBooksLoan {
+  id: number;
   bookTitle: string;
   borrower: string;
   returnDate: dayjs.Dayjs;

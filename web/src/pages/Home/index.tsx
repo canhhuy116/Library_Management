@@ -168,6 +168,11 @@ const Home = ({ reportStore, loanSlipStore }: IHomeProps) => {
   // Define the columns of the table
   const columns = [
     {
+      title: 'STT',
+      dataIndex: 'id',
+      key: 'id',
+    },
+    {
       title: 'Tên sách',
       dataIndex: 'bookTitle',
       key: 'bookTitle',
@@ -212,7 +217,7 @@ const Home = ({ reportStore, loanSlipStore }: IHomeProps) => {
         <Bar data={valueChart} options={options} />
       </Card>
       <Card className="booksLoan" title={<Typography.Title level={2}>Sách đang được mượn</Typography.Title>}>
-        <Table dataSource={currentPageData} columns={columns} pagination={false} />
+        <Table dataSource={currentPageData} columns={columns} rowKey={record => record.id} pagination={false} />
         <Pagination
           current={currentPage}
           pageSize={pageSize}

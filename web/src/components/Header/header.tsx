@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Avatar, Col, Dropdown, Menu, Row } from 'antd';
+import { Avatar, Button, Col, Dropdown, Menu, Row } from 'antd';
 import { MenuUnfoldOutlined, MenuFoldOutlined, LogoutOutlined, CaretDownOutlined } from '@ant-design/icons';
 import '@/assets/scss/components/header.scss';
 import profilePicture from '@/assets/images/avatar.png';
+import { useAuthUser, useSignOut } from 'react-auth-kit';
 
 export interface IHeaderProps {
   collapsed: boolean;
@@ -11,7 +11,9 @@ export interface IHeaderProps {
 }
 
 const Header = ({ collapsed, toggle }: IHeaderProps) => {
-  const [user, setUser] = useState<string>('admin');
+  const auth = useAuthUser();
+  const signOut = useSignOut();
+  const [user, setUser] = useState<any>(auth());
 
   const userDropdownMenu = () => (
     <Menu>
@@ -30,10 +32,10 @@ const Header = ({ collapsed, toggle }: IHeaderProps) => {
         </div>
       </Menu.Item>
       <Menu.Item key="1">
-        <Link className="header-logout" to="/logout">
+        <Button type="link" onClick={() => signOut()}>
           <LogoutOutlined />
-          <span>Logout</span>
-        </Link>
+          Đăng xuất
+        </Button>
       </Menu.Item>
     </Menu>
   );

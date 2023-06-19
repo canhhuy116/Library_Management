@@ -17,6 +17,7 @@
     "mobx": "^6.9.0",
     "mobx-react": "^7.6.0",
     "react": "18.2.0",
+    "react-auth-kit": "^2.12.2",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "6.4.3"
