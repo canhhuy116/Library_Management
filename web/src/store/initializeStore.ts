@@ -2,6 +2,7 @@ import BookStore from '@/store/bookStore';
 import ReportStore from '@/store/reportStore';
 import LoanSlipStore from '@/store/loanSlipStore';
 import MemberStore from '@/store/memberStore';
+import RuleStore from '@/store/ruleStore';
 
 export default function initializeStores() {
   return {
@@ -9,5 +10,6 @@ export default function initializeStores() {
     reportStore: new ReportStore(),
     loanSlipStore: new LoanSlipStore(),
     memberStore: new MemberStore(),
+    ruleStore: new RuleStore(),
   };
 }

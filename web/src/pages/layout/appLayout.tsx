@@ -1,12 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Layout, Menu, theme } from 'antd';
+import { Layout } from 'antd';
 import SiderMenu from '@/components/SiderMenu';
 import Header from '@/components/Header/header';
+import RuleStore from '@/store/ruleStore';
+import { inject } from 'mobx-react';
+import Stores from '@/store';
 
 const { Content } = Layout;
 
-const AppLayout = () => {
+interface IAppLayoutProps {
+  ruleStore?: RuleStore;
+}
+
+const AppLayout = ({ ruleStore }: IAppLayoutProps) => {
+  useEffect(() => {
+    (async () => {
+      try {
+        await ruleStore?.getAll();
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+  }, []);
+
   const [collapsed, setCollapsed] = React.useState(false);
 
   const onCollapse = (collapsed: boolean) => {
@@ -32,4 +49,4 @@ const AppLayout = () => {
   );
 };
 
-export default AppLayout;
+export default inject(Stores.RuleStore)(AppLayout);

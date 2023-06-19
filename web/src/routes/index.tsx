@@ -1,5 +1,5 @@
 import { RouteObject } from 'react-router-dom';
-import AppLayout from '@/pages/layout';
+import AppLayout from '@/pages/layout/appLayout';
 import { IRoute, appRouters, authRouter } from '@/routes/route.config';
 import AuthLayout from '@/pages/layout/authLayout';
 import PrivateRoute from './PrivateRoute';

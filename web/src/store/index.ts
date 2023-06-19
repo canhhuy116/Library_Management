@@ -3,4 +3,5 @@ export default class Stores {
   static ReportStore: string = 'reportStore';
   static LoanSlipStore: string = 'loanSlipStore';
   static MemberStore: string = 'memberStore';
+  static RuleStore: string = 'ruleStore';
 }

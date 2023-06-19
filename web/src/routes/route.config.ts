@@ -2,7 +2,7 @@ import NotFound from '@/pages/NotFound';
 import Books from '@/pages/Books';
 import Home from '@/pages/Home';
 import Members from '@/pages/Members';
-import Roles from '@/pages/Roles';
+import Rule from '@/pages/Rule';
 import { HomeOutlined, UserOutlined, BookOutlined, TagsOutlined, FormOutlined } from '@ant-design/icons';
 import LoanSlips from '@/pages/LoanSlips';
 import LoginPage from '@/pages/Login';
@@ -68,12 +68,12 @@ export const appRouters: IRoute[] = [
     component: Members,
   },
   {
-    path: '/roles',
-    title: 'roles',
+    path: '/rule',
+    title: 'rule',
     name: 'Quy định',
     icon: TagsOutlined,
     showInMenu: true,
-    component: Roles,
+    component: Rule,
   },
   {
     path: '/*',
