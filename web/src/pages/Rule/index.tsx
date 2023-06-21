@@ -1,20 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Button, Card, DatePicker, Form, InputNumber, Modal, Select, Table, Typography } from 'antd';
+import { Button, Card, Form, InputNumber, Modal, Select, Table, Typography } from 'antd';
 import '@/assets/scss/pages/home.scss';
 import { inject } from 'mobx-react';
 import Stores from '@/store';
 import RuleStore from '@/store/ruleStore';
-import bookStore, { IBook } from '@/store/bookStore';
-import memberStore, { IMember } from '@/store/memberStore';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-interface IHomeProps {
+interface IRuleProps {
   ruleStore?: RuleStore;
 }
 
-const Rule = ({ ruleStore }: IHomeProps) => {
+const Rule = ({ ruleStore }: IRuleProps) => {
   const [loading, setLoading] = useState(true);
   const [dataSourceRule, setDataSourceRule] = useState<any>();
   const [isModalVisible, setIsModalVisible] = useState(false);

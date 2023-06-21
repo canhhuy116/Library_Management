@@ -3,10 +3,18 @@ import Books from '@/pages/Books';
 import Home from '@/pages/Home';
 import Members from '@/pages/Members';
 import Rule from '@/pages/Rule';
-import { HomeOutlined, UserOutlined, BookOutlined, TagsOutlined, FormOutlined } from '@ant-design/icons';
+import {
+  HomeOutlined,
+  UserOutlined,
+  BookOutlined,
+  TagsOutlined,
+  FormOutlined,
+  ApartmentOutlined,
+} from '@ant-design/icons';
 import LoanSlips from '@/pages/LoanSlips';
 import LoginPage from '@/pages/Login';
 import RegisterPage from '@/pages/Register';
+import Organization from '@/pages/Organization';
 
 export interface IRoute {
   path: string;
@@ -74,6 +82,14 @@ export const appRouters: IRoute[] = [
     icon: TagsOutlined,
     showInMenu: true,
     component: Rule,
+  },
+  {
+    path: '/organization',
+    title: 'organization',
+    name: 'Tổ chức',
+    icon: ApartmentOutlined,
+    showInMenu: true,
+    component: Organization,
   },
   {
     path: '/*',
