@@ -52,7 +52,7 @@ const RegisterPage = () => {
       </Form.Item>
 
       <Form.Item>
-        <Button type="primary" danger htmlType="submit" block>
+        <Button disabled type="primary" danger htmlType="submit" block>
           Sign Up
         </Button>
       </Form.Item>
