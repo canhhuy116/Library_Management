@@ -19,7 +19,7 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [newUserForm] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<IUser | null>(null); // The book object that is being viewed or edited
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [organizationLoading, setOrganizationLoading] = useState(true);
 
   const getAll = async () => {
@@ -71,7 +71,7 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
       dataIndex: 'id',
       key: 'actions',
       render: (id: number) => {
-        const record = usersData?.find(user => user.id === id); // Find the corresponding book object
+        const record = usersData?.find(user => user.id === id);
         return record ? (
           <Space size="small">
             <Button type="link" onClick={() => viewUserDetails(record)}>
@@ -109,7 +109,7 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
   };
 
   const handleDelete = (id: number) => {
-    const updatedUsersData = usersData?.filter(book => book.id !== id);
+    const updatedUsersData = usersData?.filter(user => user.id !== id);
     setUsersData(updatedUsersData);
   };
 
@@ -187,7 +187,6 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
 
-  // Filter the booksData based on the search keyword
   const filteredData = searchKeyword
     ? usersData?.filter(
         user =>
@@ -196,7 +195,6 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
       )
     : usersData;
 
-  // Slice the data source to display only the books for the current page
   const currentPageData = filteredData?.slice(startIndex, endIndex);
 
   return (
@@ -223,7 +221,7 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
               type="primary"
               size="large"
               icon={<PlusCircleOutlined />}
-              className="book__list_titleBtn"
+              className="organization__list_titleBtn"
               onClick={showModal}
             />
           </Space>

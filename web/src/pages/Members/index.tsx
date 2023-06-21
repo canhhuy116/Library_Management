@@ -32,10 +32,10 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [newMemberForm] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<IMember | null>(null); // The book object that is being viewed or edited
+  const [selectedMember, setSelectedMember] = useState<IMember | null>(null);
   const [membersLoading, setMembersLoading] = useState(true);
 
-  const getAllBooks = async () => {
+  const getAllMembers = async () => {
     try {
       await memberStore?.getAll();
     } catch (error) {
@@ -46,7 +46,7 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
   };
 
   useEffect(() => {
-    memberStore?.memberData.length ? setMembersLoading(false) : getAllBooks();
+    memberStore?.memberData.length ? setMembersLoading(false) : getAllMembers();
   }, [memberStore]);
 
   useEffect(() => {
@@ -79,14 +79,14 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
       dataIndex: 'id',
       key: 'actions',
       render: (id: number) => {
-        const record = membersData?.find(member => member.id === id); // Find the corresponding book object
+        const record = membersData?.find(member => member.id === id);
         return record ? (
           <Space size="small">
             <Button type="link" onClick={() => viewMemberDetails(record)}>
               <EditOutlined />
             </Button>
             <Popconfirm
-              title="Are you sure to delete this book?"
+              title="Are you sure to delete this member?"
               onConfirm={() => handleDelete(id)}
               okText="Yes"
               cancelText="No"
@@ -117,8 +117,8 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
   };
 
   const handleDelete = (id: number) => {
-    const updatedBooksData = membersData?.filter(book => book.id !== id);
-    setMembersData(updatedBooksData);
+    const updatedMembersData = membersData?.filter(member => member.id !== id);
+    setMembersData(updatedMembersData);
   };
 
   const handleAddMember = () => {
@@ -141,7 +141,7 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
   const handleUpdateMember = () => {
     if (!selectedMember) return;
     newMemberForm.validateFields().then(values => {
-      const updatedBook = {
+      const updatedMember = {
         id: selectedMember.id,
         name: values.name,
         type: values.type,
@@ -152,11 +152,11 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
       };
       let updatedMembersData: IMember[] | undefined;
       if (membersData) {
-        updatedMembersData = membersData.map(book => {
-          if (book.id === updatedBook.id) {
-            return updatedBook;
+        updatedMembersData = membersData.map(member => {
+          if (member.id === updatedMember.id) {
+            return updatedMember;
           }
-          return book;
+          return member;
         });
         setMembersData(updatedMembersData);
       }
@@ -182,7 +182,7 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
 
   // Configure pagination
   const pageSize = 5;
-  const totalBooks = membersData?.length;
+  const totalMembers = membersData?.length;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -192,7 +192,6 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
 
-  // Filter the booksData based on the search keyword
   const filteredData = searchKeyword
     ? membersData?.filter(
         member =>
@@ -200,7 +199,6 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
       )
     : membersData;
 
-  // Slice the data source to display only the books for the current page
   const currentPageData = filteredData?.slice(startIndex, endIndex);
 
   return (
@@ -221,13 +219,13 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
         title={
           <Space className="members__list__title">
             <Typography.Title level={3}>Danh sách độc giả</Typography.Title>
-            <Typography.Title level={3}>Tổng số: {totalBooks}</Typography.Title>
+            <Typography.Title level={3}>Tổng số: {totalMembers}</Typography.Title>
             <Typography.Title level={3}>Hiển thị: {currentPageData?.length}</Typography.Title>
             <Button
               type="primary"
               size="large"
               icon={<PlusCircleOutlined />}
-              className="book__list_titleBtn"
+              className="member__list_titleBtn"
               onClick={showModal}
             />
           </Space>
