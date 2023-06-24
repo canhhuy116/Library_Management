@@ -3,22 +3,21 @@ import AppLogo from '@/assets/images/logo.png';
 import '@/assets/scss/pages/login.scss';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import authService from '@/service/authService';
+import authService, { IUserLogin } from '@/service/authService';
 import { useSignIn } from 'react-auth-kit';
 
 const LoginPage = () => {
   const signIn = useSignIn();
   const navigate = useNavigate();
 
-  const onFinish = async (values: any) => {
-    console.log('Received values of form: ', values);
-    const res = await authService.login();
+  const onFinish = async (values: IUserLogin) => {
+    const res = await authService.login(values);
     if (signIn) {
       const signInResult = signIn({
-        token: res.data.token,
-        expiresIn: res.data.expiresIn,
-        tokenType: 'Bearer',
-        authState: res.data.userId,
+        token: res.access_token,
+        expiresIn: res.expiresIn,
+        tokenType: res.token_type,
+        authState: res.name,
       });
 
       if (signInResult) {
