@@ -1,6 +1,5 @@
 import { URL_API, URL_APP } from '@/util/constants';
 import axios from 'axios';
-
 import qs from 'qs';
 
 const http = axios.create({
@@ -13,10 +12,17 @@ const http = axios.create({
   },
 });
 
-// // Add an interceptor to include the Access-Control-Allow-Origin header
-// http.interceptors.request.use(config => {
-//   config.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173';
-//   return config;
-// });
+// Add an interceptor to include the Access-Control-Allow-Origin header
+http.interceptors.request.use(config => {
+  // Retrieve the _auth cookie value
+  const authCookie = document.cookie.match('(^|;)\\s*_auth\\s*=\\s*([^;]+)');
+
+  // Set the Authorization header if the _auth cookie exists
+  if (authCookie) {
+    config.headers['Authorization'] = `Bearer ${authCookie[2]}`;
+  }
+
+  return config;
+});
 
 export default http;

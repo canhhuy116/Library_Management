@@ -46,7 +46,7 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
   };
 
   useEffect(() => {
-    memberStore?.memberData.length ? setMembersLoading(false) : getAllMembers();
+    memberStore?.memberData?.length ? setMembersLoading(false) : getAllMembers();
   }, [memberStore]);
 
   useEffect(() => {
@@ -71,8 +71,8 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
     },
     {
       title: 'Ngày lập thẻ',
-      dataIndex: 'createDate',
-      key: 'createDate',
+      dataIndex: 'created_at',
+      key: 'created_at',
     },
     {
       title: 'Actions',
@@ -127,12 +127,13 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
         id: membersData?.length ? membersData.length + 1 : 1,
         name: values.name,
         type: values.type,
-        birthday: values.birthday?.toDate(),
+        dob: values.dob?.toDate(),
         address: values.address,
         email: values.email,
-        createDate: values.createDate?.toDate(),
+        created_at: values.created_at?.toDate(),
       };
-      setMembersData(membersData ? [...membersData, newMember] : [newMember]);
+      const new_member = await memberStore?.createNewMember(newMember);
+      setMembersData(membersData ? [...membersData, new_member] : [new_member]);
       newMemberForm.resetFields();
       setIsModalVisible(false);
     });
@@ -140,21 +141,22 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
 
   const handleUpdateMember = () => {
     if (!selectedMember) return;
-    newMemberForm.validateFields().then(values => {
+    newMemberForm.validateFields().then(async values => {
       const updatedMember = {
         id: selectedMember.id,
         name: values.name,
         type: values.type,
-        birthday: values.birthday?.toDate(),
+        dob: values.dob?.toDate(),
         address: values.address,
         email: values.email,
-        createDate: selectedMember.createDate,
+        created_at: selectedMember.created_at,
       };
       let updatedMembersData: IMember[] | undefined;
+      const memberUpdated = await memberStore?.updateMember(updatedMember);
       if (membersData) {
         updatedMembersData = membersData.map(member => {
-          if (member.id === updatedMember.id) {
-            return updatedMember;
+          if (member.id === memberUpdated.id) {
+            return memberUpdated;
           }
           return member;
         });
@@ -173,10 +175,10 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
     newMemberForm.setFieldsValue({
       name: member.name,
       type: member.type,
-      birthday: member.birthday ? dayjs(member.birthday) : null,
+      dob: member.dob ? dayjs(member.dob) : null,
       address: member.address,
       email: member.email,
-      createDate: member.createDate ? dayjs(member.createDate) : null,
+      created_at: member.created_at ? dayjs(member.created_at) : null,
     });
   };
 
@@ -272,11 +274,7 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
                 placeholder="Loại độc giả"
               />
             </Form.Item>
-            <Form.Item
-              name="birthday"
-              label="Ngày sinh"
-              rules={[{ required: true, message: 'Vui lòng chọn ngày sinh' }]}
-            >
+            <Form.Item name="dob" label="Ngày sinh" rules={[{ required: true, message: 'Vui lòng chọn ngày sinh' }]}>
               <DatePicker placeholder="Ngày sinh" />
             </Form.Item>
             <Form.Item name="address" label="Địa chỉ" rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}>
@@ -286,7 +284,7 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
               <Input placeholder="Email" />
             </Form.Item>
             <Form.Item
-              name="createDate"
+              name="created_at"
               label="Ngày lập thẻ"
               rules={[{ required: true, message: 'Vui lòng chọn ngày lập thẻ' }]}
             >
