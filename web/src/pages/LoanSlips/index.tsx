@@ -193,7 +193,7 @@ const LoanSlips = ({ loanSlipStore, bookStore, memberStore }: ILoanSlipsProps) =
               onSearch={setSearchKeyword} // Update the search keyword when input changes
             >
               {bookStore.booksData
-                .filter((book: IBook) => book.status && book.name.toLowerCase().includes(searchKeyword.toLowerCase()))
+                .filter((book: IBook) => book.name.toLowerCase().includes(searchKeyword.toLowerCase()))
                 .map((book: IBook) => (
                   <Select.Option key={book.id} value={book.id}>
                     {`${book.id} - ${book.name}`}

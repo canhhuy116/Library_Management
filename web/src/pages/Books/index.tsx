@@ -1,4 +1,18 @@
-import { Button, Card, DatePicker, Form, Input, Modal, Pagination, Popconfirm, Space, Table, Typography } from 'antd';
+import {
+  Button,
+  Card,
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Pagination,
+  Popconfirm,
+  Select,
+  Space,
+  Table,
+  Typography,
+} from 'antd';
 import React, { useEffect, useState } from 'react';
 import '@/assets/scss/pages/books.scss';
 import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from '@ant-design/icons';
@@ -6,14 +20,16 @@ import dayjs from 'dayjs';
 import BookStore, { IBook } from '@/store/bookStore';
 import { inject } from 'mobx-react';
 import Stores from '@/store';
+import RuleStore from '@/store/ruleStore';
 
 const { Search } = Input;
 
 interface IBooksProps {
   bookStore?: BookStore;
+  ruleStore?: RuleStore;
 }
 
-const Books: React.FC = ({ bookStore }: IBooksProps) => {
+const Books: React.FC = ({ bookStore, ruleStore }: IBooksProps) => {
   const [booksData, setBooksData] = useState<IBook[]>(); // booksDataInit is defined below
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -34,7 +50,7 @@ const Books: React.FC = ({ bookStore }: IBooksProps) => {
 
   useEffect(() => {
     bookStore?.booksData.length ? setBooksLoading(false) : getAllBooks();
-  }, []);
+  }, [bookStore]);
 
   useEffect(() => {
     setBooksData(bookStore?.booksData);
@@ -62,10 +78,14 @@ const Books: React.FC = ({ bookStore }: IBooksProps) => {
       key: 'author',
     },
     {
-      title: 'Tình trạng',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: boolean) => (status ? 'Có sẵn' : 'Đã mượn'),
+      title: 'Tổng sách',
+      dataIndex: 'numberOfCopies',
+      key: 'numberOfCopies',
+    },
+    {
+      title: 'Tổng sách cho mượn',
+      dataIndex: 'numberOfBorrowedCopies',
+      key: 'numberOfBorrowedCopies',
     },
     {
       title: 'Actions',
@@ -109,8 +129,9 @@ const Books: React.FC = ({ bookStore }: IBooksProps) => {
     setCurrentPage(1); // Reset current page to 1 when performing a new search
   };
 
-  const handleDelete = (id: number) => {
-    const updatedBooksData = booksData?.filter(book => book.id !== id);
+  const handleDelete = async (id: number) => {
+    const bookDeleted = await bookStore?.deleteBook(id);
+    const updatedBooksData = booksData?.filter(book => book.id !== bookDeleted?.id);
     setBooksData(updatedBooksData);
   };
 
@@ -121,13 +142,16 @@ const Books: React.FC = ({ bookStore }: IBooksProps) => {
         name: values.name,
         category: values.category,
         author: values.author,
-        status: true,
+        numberOfCopies: values.numberOfCopies,
         publicCationYear: values.publicationYear?.year(),
         publisher: values.publisher,
         importDate: values.importDate?.toDate(),
       };
-      setBooksData(booksData ? [...booksData, newBook] : [newBook]);
-      // await bookStore?.createNewBook(newBook);
+      const new_book = await bookStore?.createNewBook(newBook);
+      if (new_book) {
+        setBooksData(booksData ? [...booksData, new_book] : [new_book]);
+      }
+
       newBookForm.resetFields();
       setIsModalVisible(false);
     });
@@ -135,22 +159,24 @@ const Books: React.FC = ({ bookStore }: IBooksProps) => {
 
   const handleUpdateBook = () => {
     if (!selectedBook) return;
-    newBookForm.validateFields().then(values => {
+    newBookForm.validateFields().then(async values => {
       const updatedBook = {
         id: selectedBook.id,
         name: values.name,
         category: values.category,
         author: values.author,
-        status: selectedBook.status,
+        numberOfCopies: values.numberOfCopies,
         publicCationYear: values.publicationYear?.year(),
         publisher: values.publisher,
         importDate: values.importDate?.toDate(),
       };
       let updatedBooksData;
-      if (booksData) {
+      const bookUpdated = await bookStore?.updateBook(updatedBook);
+      if (booksData && bookUpdated) {
+        console.log(bookUpdated);
         updatedBooksData = booksData.map(book => {
-          if (book.id === updatedBook.id) {
-            return updatedBook;
+          if (book.id === bookUpdated.id) {
+            return bookUpdated;
           }
           return book;
         });
@@ -173,6 +199,7 @@ const Books: React.FC = ({ bookStore }: IBooksProps) => {
       publicationYear: book.publicCationYear ? dayjs(`${book.publicCationYear}`) : null,
       publisher: book.publisher,
       importDate: book.importDate ? dayjs(book.importDate) : null,
+      numberOfCopies: book.numberOfCopies,
     });
   };
 
@@ -252,7 +279,13 @@ const Books: React.FC = ({ bookStore }: IBooksProps) => {
               label="Thể loại"
               rules={[{ required: true, message: 'Vui lòng nhập thể loại sách' }]}
             >
-              <Input placeholder="Thể loại" />
+              <Select placeholder="Thể loại" allowClear>
+                {ruleStore?.ruleData?.categoryBooks?.map((cat: string) => (
+                  <Select.Option key={cat} value={cat}>
+                    {cat}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
             <Form.Item
               name="author"
@@ -282,6 +315,13 @@ const Books: React.FC = ({ bookStore }: IBooksProps) => {
             >
               <DatePicker placeholder="Ngày nhập sách" />
             </Form.Item>
+            <Form.Item
+              name="numberOfCopies"
+              label="Số lượng sách"
+              rules={[{ required: true, message: 'Vui lòng nhập số lượng sách' }]}
+            >
+              <InputNumber placeholder="Số lượng sách" min={1} />
+            </Form.Item>
           </Form>
         </Modal>
         <Table
@@ -303,4 +343,4 @@ const Books: React.FC = ({ bookStore }: IBooksProps) => {
   );
 };
 
-export default inject(Stores.BookStore)(Books);
+export default inject(Stores.BookStore, Stores.RuleStore)(Books);
