@@ -41,6 +41,15 @@ class MemberStore {
       console.error('Error updating member:', error);
     }
   };
+
+  @action deleteMember = async (id: number) => {
+    try {
+      const result = await memberService.deleteMember(id);
+      return result;
+    } catch (error) {
+      console.error('Error deleting member:', error);
+    }
+  };
 }
 
 export default MemberStore;

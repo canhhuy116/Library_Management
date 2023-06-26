@@ -116,8 +116,9 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
     setCurrentPage(1); // Reset current page to 1 when performing a new search
   };
 
-  const handleDelete = (id: number) => {
-    const updatedMembersData = membersData?.filter(member => member.id !== id);
+  const handleDelete = async (id: number) => {
+    const memberDeleted = await memberStore?.deleteMember(id);
+    const updatedMembersData = membersData?.filter(member => member.id !== memberDeleted?.id);
     setMembersData(updatedMembersData);
   };
 

@@ -18,6 +18,11 @@ class Members {
     const response = await http.put(`card/${id}`, payload);
     return response.data;
   }
+
+  public async deleteMember(id: number): Promise<any> {
+    const response = await http.delete(`card/${id}`);
+    return response.data;
+  }
 }
 
 export default new Members();
