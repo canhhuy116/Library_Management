@@ -57,15 +57,17 @@ const LoanSlips = ({ loanSlipStore, bookStore, memberStore }: ILoanSlipsProps) =
       key: 'id',
     },
     {
-      title: 'Tên người mượn',
-      dataIndex: 'borrower',
-      key: 'borrower',
+      title: 'Mã người mượn',
+      dataIndex: 'borrowerId',
+      key: 'borrowerId',
     },
     {
       title: 'Số sách mượn',
       dataIndex: 'books',
       key: 'books',
-      render: (books: IBook[]) => books.length,
+      render: (books: number[]) => {
+        return books?.length;
+      },
     },
     {
       title: 'Actions',
@@ -141,7 +143,9 @@ const LoanSlips = ({ loanSlipStore, bookStore, memberStore }: ILoanSlipsProps) =
             key="submit"
             type="primary"
             onClick={() => {
-              newLoanSlipForm.validateFields().then(values => {
+              newLoanSlipForm.validateFields().then(async values => {
+                await loanSlipStore.createLoanSlip(values);
+
                 newLoanSlipForm.resetFields();
                 setIsModalCreateLoanSlipVisible(false);
                 console.log(values);
@@ -154,22 +158,23 @@ const LoanSlips = ({ loanSlipStore, bookStore, memberStore }: ILoanSlipsProps) =
       >
         <Form form={newLoanSlipForm} layout="vertical">
           <Form.Item
-            name="borrower"
+            name="id_card"
             label="Mã độc giả"
             rules={[{ required: true, message: 'Vui lòng chọn mã độc giả' }]}
           >
             <Select
-              mode="multiple"
               placeholder="Mã độc giả"
               allowClear
               onSearch={setSearchMemberKeyword} // Update the search keyword when input changes
             >
               {memberStore?.memberData
-                .filter((member: IMember) =>
-                  searchMemberKeyword
-                    ? member.name.toLowerCase().includes(searchMemberKeyword.toLowerCase()) ||
-                      member.id === Number(searchMemberKeyword)
-                    : true,
+                .filter(
+                  (member: IMember) =>
+                    (searchMemberKeyword
+                      ? member.name.toLowerCase().includes(searchMemberKeyword.toLowerCase()) ||
+                        member.id === Number(searchMemberKeyword)
+                      : true) &&
+                    (loanSlipsData ? !loanSlipsData.find(loanSlip => loanSlip.borrowerId === member.id) : true),
                 )
                 .map((member: IMember) => (
                   <Select.Option key={member.id} value={member.id}>
@@ -179,13 +184,17 @@ const LoanSlips = ({ loanSlipStore, bookStore, memberStore }: ILoanSlipsProps) =
             </Select>
           </Form.Item>
           <Form.Item
-            name="borrowDate"
+            name="created_at"
             label="Ngày lập phiếu"
             rules={[{ required: true, message: 'Vui lòng chọn ngày lập phiếu' }]}
           >
             <DatePicker placeholder="Ngày lập phiếu" />
           </Form.Item>
-          <Form.Item name="books" label="Sách mượn" rules={[{ required: true, message: 'Vui lòng nhập sách mượn' }]}>
+          <Form.Item
+            name="ids_books"
+            label="Sách mượn"
+            rules={[{ required: true, message: 'Vui lòng nhập sách mượn' }]}
+          >
             <Select
               mode="multiple"
               placeholder="Sách mượn"
@@ -193,7 +202,11 @@ const LoanSlips = ({ loanSlipStore, bookStore, memberStore }: ILoanSlipsProps) =
               onSearch={setSearchKeyword} // Update the search keyword when input changes
             >
               {bookStore.booksData
-                .filter((book: IBook) => book.name.toLowerCase().includes(searchKeyword.toLowerCase()))
+                .filter(
+                  (book: IBook) =>
+                    (book.numberOfBorrowedCopies ? book.numberOfBorrowedCopies < book.numberOfCopies : true) &&
+                    book.name.toLowerCase().includes(searchKeyword.toLowerCase()),
+                )
                 .map((book: IBook) => (
                   <Select.Option key={book.id} value={book.id}>
                     {`${book.id} - ${book.name}`}
@@ -216,12 +229,12 @@ const LoanSlips = ({ loanSlipStore, bookStore, memberStore }: ILoanSlipsProps) =
       >
         <Modal open={isModalVisible} onCancel={handleCancel} onOk={handleCancel}>
           <Typography.Title level={2}>Phiếu mượn sách</Typography.Title>
-          <Typography.Title level={3}>Tên đọc giả: {selectedLoanSlips?.borrower}</Typography.Title>
+          <Typography.Title level={3}>Mã độc giả: {selectedLoanSlips?.borrowerId}</Typography.Title>
           <Typography.Title level={3}>
             Ngày mượn: {dayjs(selectedLoanSlips?.borrowDate).format('DD/MM/YYYY')}
           </Typography.Title>
           <Table
-            dataSource={selectedLoanSlips?.books}
+            dataSource={bookStore.booksData.filter(book => selectedLoanSlips?.books.includes(book.id))}
             columns={[
               {
                 title: 'STT',

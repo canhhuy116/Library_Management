@@ -147,10 +147,7 @@ const Books: React.FC = ({ bookStore, ruleStore }: IBooksProps) => {
         publisher: values.publisher,
         importDate: values.importDate?.toDate(),
       };
-      const new_book = await bookStore?.createNewBook(newBook);
-      if (new_book) {
-        setBooksData(booksData ? [...booksData, new_book] : [new_book]);
-      }
+      await bookStore?.createNewBook(newBook);
 
       newBookForm.resetFields();
       setIsModalVisible(false);

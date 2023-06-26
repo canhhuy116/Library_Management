@@ -12,9 +12,8 @@ export interface IBooksLoan {
 
 export interface ILoanSlip {
   id: number;
-  borrower: string;
   borrowerId: number;
-  books: IBook[];
+  books: number[];
   borrowDate: dayjs.Dayjs;
 }
 
@@ -25,7 +24,25 @@ class LoanSlipStore {
   @action getAll = async () => {
     try {
       const result = await loanSlipService.getLoanSlips();
-      this.loanSlips = result.loanSlips;
+      const data: ILoanSlip[] = result.map((item: any) => {
+        return {
+          id: item.id,
+          borrowerId: item.id_card,
+          books: item.ids_books,
+          borrowDate: dayjs(item.created_at),
+        };
+      });
+      this.loanSlips = data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  @action createLoanSlip = async (loanSlip: ILoanSlip) => {
+    try {
+      const result = await loanSlipService.createLoanSlip(loanSlip);
+      this.loanSlips.push(result);
+      return result;
     } catch (error) {
       console.error('Error fetching data:', error);
     }

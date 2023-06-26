@@ -133,8 +133,7 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
         email: values.email,
         created_at: values.created_at?.toDate(),
       };
-      const new_member = await memberStore?.createNewMember(newMember);
-      setMembersData(membersData ? [...membersData, new_member] : [new_member]);
+      await memberStore?.createNewMember(newMember);
       newMemberForm.resetFields();
       setIsModalVisible(false);
     });

@@ -27,6 +27,7 @@ class MemberStore {
   @action createNewMember = async (member: IMember) => {
     try {
       const result = await memberService.createNewMember(member);
+      this.memberData.push(result);
       return result;
     } catch (error) {
       console.error('Error creating new member:', error);
@@ -36,6 +37,12 @@ class MemberStore {
   @action updateMember = async (member: IMember) => {
     try {
       const result = await memberService.updateMember(member);
+      this.memberData = this.memberData.map((item: IMember) => {
+        if (item.id === result.id) {
+          return result;
+        }
+        return item;
+      });
       return result;
     } catch (error) {
       console.error('Error updating member:', error);
