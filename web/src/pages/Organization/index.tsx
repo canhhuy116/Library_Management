@@ -117,9 +117,12 @@ const Organization: React.FC = ({ organizationStore, ruleStore }: IOrganizationP
     setCurrentPage(1); // Reset current page to 1 when performing a new search
   };
 
-  const handleDelete = (id: number) => {
-    const updatedUsersData = usersData?.filter(user => user.id !== id);
-    setUsersData(updatedUsersData);
+  const handleDelete = async (id: number) => {
+    const data = await organizationStore?.deleteUser(id);
+    if (data) {
+      const updatedUsersData = usersData?.filter(user => user.id !== id);
+      setUsersData(updatedUsersData);
+    }
   };
 
   const handleAddUser = () => {

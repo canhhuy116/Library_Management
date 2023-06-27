@@ -8,6 +8,7 @@ import { inject } from 'mobx-react';
 import Stores from '@/store';
 import dayjs from 'dayjs';
 import MemberStore, { IMember } from '@/store/memberStore';
+import { set } from 'lodash';
 
 interface ILoanSlipsProps {
   loanSlipStore: LoanSlipStore;
@@ -101,9 +102,10 @@ const LoanSlips = ({ loanSlipStore, bookStore, memberStore }: ILoanSlipsProps) =
     setIsModalVisible(true);
   };
 
-  const handleDelete = (id: number) => {
-    const newLoanSlipsData = loanSlipsData.filter(loanSlip => loanSlip.id !== id);
-    setLoanSlipsData(newLoanSlipsData);
+  const handleDelete = async (id: number) => {
+    const result = await loanSlipStore.deleteLoanSlip(id);
+    const newData = loanSlipsData.filter(loanSlip => loanSlip.id !== result.id);
+    setLoanSlipsData(newData);
   };
 
   const handleCancel = () => {
@@ -144,8 +146,10 @@ const LoanSlips = ({ loanSlipStore, bookStore, memberStore }: ILoanSlipsProps) =
             type="primary"
             onClick={() => {
               newLoanSlipForm.validateFields().then(async values => {
-                await loanSlipStore.createLoanSlip(values);
-
+                const result = await loanSlipStore.createLoanSlip(values);
+                if (result === 433) {
+                  alert('Không thể tạo phiếu mượn do độc giả đã mượn sách quá số lượng cho phép');
+                }
                 newLoanSlipForm.resetFields();
                 setIsModalCreateLoanSlipVisible(false);
                 console.log(values);

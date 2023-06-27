@@ -133,7 +133,10 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
         email: values.email,
         created_at: values.created_at?.toDate(),
       };
-      await memberStore?.createNewMember(newMember);
+      const result = await memberStore?.createNewMember(newMember);
+      if (result.status_code && result.status_code === 422) {
+        alert(result.detail);
+      }
       newMemberForm.resetFields();
       setIsModalVisible(false);
     });
@@ -151,17 +154,17 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
         email: values.email,
         created_at: selectedMember.created_at,
       };
-      let updatedMembersData: IMember[] | undefined;
-      const memberUpdated = await memberStore?.updateMember(updatedMember);
-      if (membersData) {
-        updatedMembersData = membersData.map(member => {
-          if (member.id === memberUpdated.id) {
-            return memberUpdated;
-          }
-          return member;
-        });
-        setMembersData(updatedMembersData);
-      }
+      // let updatedMembersData: IMember[] | undefined;
+      await memberStore?.updateMember(updatedMember);
+      // if (membersData) {
+      //   updatedMembersData = membersData.map(member => {
+      //     if (member.id === memberUpdated.id) {
+      //       return memberUpdated;
+      //     }
+      //     return member;
+      //   });
+      //   setMembersData(updatedMembersData);
+      // }
       newMemberForm.resetFields();
       setIsModalVisible(false);
     });

@@ -15,6 +15,11 @@ class Organization {
     const response = await http.post('/user/registration', user);
     return response.data;
   }
+
+  public async deleteUser(id: number): Promise<any> {
+    const response = await http.delete(`/user/admin/users/${id}`);
+    return response.data;
+  }
 }
 
 export default new Organization();

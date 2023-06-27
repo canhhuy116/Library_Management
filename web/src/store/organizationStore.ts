@@ -33,6 +33,15 @@ class OrganizationStore {
       console.error('Error creating new organization:', error);
     }
   };
+
+  @action deleteUser = async (id: number) => {
+    try {
+      const result = await organizationService.deleteUser(id);
+      return result;
+    } catch (error) {
+      console.error('Error deleting organization:', error);
+    }
+  };
 }
 
 export default OrganizationStore;

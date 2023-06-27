@@ -41,7 +41,26 @@ class LoanSlipStore {
   @action createLoanSlip = async (loanSlip: ILoanSlip) => {
     try {
       const result = await loanSlipService.createLoanSlip(loanSlip);
-      this.loanSlips.push(result);
+      if (result === 433) {
+        return result;
+      }
+      const data = {
+        id: result.id,
+        borrowerId: result.id_card,
+        books: result.ids_books,
+        borrowDate: dayjs(result.created_at),
+      };
+      this.loanSlips.push(data);
+      return result;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  @action deleteLoanSlip = async (id: number) => {
+    try {
+      const result = await loanSlipService.deleteLoanSlip(id);
+      this.loanSlips = this.loanSlips.filter(item => item.id !== id);
       return result;
     } catch (error) {
       console.error('Error fetching data:', error);

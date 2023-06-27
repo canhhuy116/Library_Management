@@ -27,6 +27,9 @@ class MemberStore {
   @action createNewMember = async (member: IMember) => {
     try {
       const result = await memberService.createNewMember(member);
+      if (result.status_code && result.status_code === 422) {
+        return result;
+      }
       this.memberData.push(result);
       return result;
     } catch (error) {

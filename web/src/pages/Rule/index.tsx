@@ -96,13 +96,13 @@ const Rule = ({ ruleStore }: IRuleProps) => {
     console.log(dataSourceRule);
 
     updateRuleForm.setFieldsValue({
-      minMemberAge: dataSourceRule[0].minMemberAge,
-      maxMemberAge: dataSourceRule[0].maxMemberAge,
-      periodValidCard: dataSourceRule[0].periodValidCard,
-      categoryBooks: dataSourceRule[0].categoryBooks.split(', '),
-      publicationYearGap: dataSourceRule[0].publicationYearGap,
-      maxBookCanBorrow: dataSourceRule[0].maxBookCanBorrow,
-      maxDayCanBorrow: dataSourceRule[0].maxDayCanBorrow,
+      min_age: dataSourceRule[0].minMemberAge,
+      max_age: dataSourceRule[0].maxMemberAge,
+      time_effective_card: dataSourceRule[0].periodValidCard,
+      detail_category: dataSourceRule[0].categoryBooks.split(', '),
+      distance_year: dataSourceRule[0].publicationYearGap,
+      max_items_borrow: dataSourceRule[0].maxBookCanBorrow,
+      max_day_borrow: dataSourceRule[0].maxDayCanBorrow,
     });
   };
 
@@ -126,7 +126,9 @@ const Rule = ({ ruleStore }: IRuleProps) => {
             key="submit"
             type="primary"
             onClick={() => {
-              updateRuleForm.validateFields().then(values => {
+              updateRuleForm.validateFields().then(async values => {
+                await ruleStore?.updateRule(values);
+
                 updateRuleForm.resetFields();
                 setIsModalVisible(false);
                 console.log(values);
@@ -139,20 +141,20 @@ const Rule = ({ ruleStore }: IRuleProps) => {
       >
         <Form form={updateRuleForm}>
           <Form.Item
-            name="minMemberAge"
+            name="min_age"
             label="Tuổi độc giả tối thiểu"
             rules={[{ required: true, message: 'Vui lòng nhập tuổi tối thiểu' }]}
           >
             <InputNumber min={1} placeholder="Tuổi độc giả tối thiểu" style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item
-            name="maxMemberAge"
+            name="max_age"
             label="Tuổi độc giả tối đa"
             rules={[
               { required: true, message: 'Vui lòng nhập tuổi tối đa' },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  const minValue = getFieldValue('minMemberAge');
+                  const minValue = getFieldValue('min_age');
                   if (!value || value > minValue) {
                     return Promise.resolve();
                   }
@@ -164,14 +166,14 @@ const Rule = ({ ruleStore }: IRuleProps) => {
             <InputNumber min={1} max={100} placeholder="Tuổi độc giả tối đa" style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item
-            name="periodValidCard"
-            label="Thời hạn thẻ độc giả (số tháng)"
+            name="time_effective_card"
+            label="Thời hạn thẻ độc giả (số ngày)"
             rules={[{ required: true, message: 'Vui lòng nhập thời hạn thẻ độc giả' }]}
           >
             <InputNumber min={1} placeholder="Thời hạn thẻ độc giả" style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item
-            name="categoryBooks"
+            name="detail_category"
             label="Các thể loại sách nhập"
             rules={[{ required: true, message: 'Vui lòng chọn các thể loại sách nhập' }]}
           >
@@ -189,21 +191,21 @@ const Rule = ({ ruleStore }: IRuleProps) => {
             />
           </Form.Item>
           <Form.Item
-            name="publicationYearGap"
+            name="distance_year"
             label="Khoảng cách năm xuất bản (số năm)"
             rules={[{ required: true, message: 'Vui lòng nhập khoảng cách năm xuất bản' }]}
           >
             <InputNumber min={0} placeholder="Khoảng cách năm xuất bản" style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item
-            name="maxBookCanBorrow"
+            name="max_items_borrow"
             label="Số lượng sách mượn tối đa"
             rules={[{ required: true, message: 'Vui lòng nhập số lượng sách mượn tối đa' }]}
           >
             <InputNumber min={1} placeholder="Số lượng sách mượn tối đa" style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item
-            name="maxDayCanBorrow"
+            name="max_day_borrow"
             label="Số ngày mượn tối đa"
             rules={[{ required: true, message: 'Vui lòng nhập số ngày mượn tối đa' }]}
           >

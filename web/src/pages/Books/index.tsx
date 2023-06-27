@@ -50,7 +50,7 @@ const Books: React.FC = ({ bookStore, ruleStore }: IBooksProps) => {
 
   useEffect(() => {
     bookStore?.booksData.length ? setBooksLoading(false) : getAllBooks();
-  }, [bookStore]);
+  }, []);
 
   useEffect(() => {
     setBooksData(bookStore?.booksData);
@@ -163,6 +163,7 @@ const Books: React.FC = ({ bookStore, ruleStore }: IBooksProps) => {
         category: values.category,
         author: values.author,
         numberOfCopies: values.numberOfCopies,
+        numberOfBorrowedCopies: selectedBook.numberOfBorrowedCopies,
         publicCationYear: values.publicationYear?.year(),
         publisher: values.publisher,
         importDate: values.importDate?.toDate(),
