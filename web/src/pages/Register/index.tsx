@@ -1,24 +1,39 @@
-import { Form, Input, Button, Avatar, Col, Row } from 'antd';
+import { Form, Input, Button, Avatar, Col, Row, DatePicker } from 'antd';
 import AppLogo from '@/assets/images/logo.png';
-import { LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+import { AimOutlined, LockOutlined, MailOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons';
+import { Link, useNavigate } from 'react-router-dom';
 import '@/assets/scss/pages/register.scss';
+import authService from '@/service/authService';
 
 const RegisterPage = () => {
-  const onFinish = (values: any) => {
+  const navigate = useNavigate();
+  const onFinish = async (values: any) => {
     console.log('Received values of form: ', values);
+    const res = await authService.signup(values);
+    if (res.username) {
+      alert('Đăng ký thành công');
+      navigate('/auth/login');
+    }
   };
 
   return (
     <Form name="register-form" onFinish={onFinish} className="register">
       <div className="register__logo">
-        <Avatar shape="square" style={{ height: 120, width: 120 }} src={AppLogo} />
+        <Avatar shape="square" style={{ height: 100, width: 100 }} src={AppLogo} />
       </div>
 
       <Form.Item name="username" rules={[{ required: true, message: 'Please input your Username!' }]}>
         <Input prefix={<UserOutlined />} placeholder="Username" />
       </Form.Item>
-
+      <Form.Item name="name" rules={[{ required: true, message: 'Please input your name!' }]}>
+        <Input prefix={<UserOutlined />} placeholder="name" />
+      </Form.Item>
+      <Form.Item name="address" rules={[{ required: true, message: 'Please input your address!' }]}>
+        <Input prefix={<AimOutlined />} placeholder="address" />
+      </Form.Item>
+      <Form.Item name="dob" rules={[{ required: true, message: 'Please input your birthday!' }]}>
+        <DatePicker placeholder="Birthday" className="date-input" />
+      </Form.Item>
       <Form.Item
         name="email"
         rules={[
@@ -50,7 +65,9 @@ const RegisterPage = () => {
       >
         <Input.Password prefix={<LockOutlined />} type="password" placeholder="Confirm Password" />
       </Form.Item>
-
+      <Form.Item name="numberphone" rules={[{ required: true, message: 'Please input your phone number!' }]}>
+        <Input prefix={<PhoneOutlined />} placeholder="phone number" />
+      </Form.Item>
       <Form.Item>
         <Button type="primary" danger htmlType="submit" block>
           Sign Up
