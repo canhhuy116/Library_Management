@@ -1,7 +1,7 @@
 import { Button, Card, DatePicker, Form, Input, Modal, Pagination, Popconfirm, Space, Table, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import '@/assets/scss/pages/organization.scss';
-import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, FundViewOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { inject } from 'mobx-react';
 import Stores from '@/store';
@@ -84,7 +84,7 @@ const Organization: React.FC = ({ organizationStore, ruleStore }: IOrganizationP
         return record ? (
           <Space size="small">
             <Button type="link" onClick={() => viewUserDetails(record)}>
-              <EditOutlined />
+              <FundViewOutlined />
             </Button>
             <Popconfirm
               title="Are you sure to delete this user?"
@@ -176,7 +176,6 @@ const Organization: React.FC = ({ organizationStore, ruleStore }: IOrganizationP
     newUserForm.setFieldsValue({
       name: user.name,
       username: user.username,
-      password: '',
       address: user.address,
       email: user.email,
       birthday: user.dob ? dayjs(user.dob) : null,
@@ -245,8 +244,8 @@ const Organization: React.FC = ({ organizationStore, ruleStore }: IOrganizationP
               Hủy
             </Button>,
             selectedUser ? (
-              <Button key="edit" type="primary" onClick={handleUpdateUser}>
-                Câp nhật
+              <Button key="edit" type="primary" onClick={handleCancel}>
+                Đóng
               </Button>
             ) : (
               <Button key="add" type="primary" onClick={handleAddUser}>
@@ -270,28 +269,37 @@ const Organization: React.FC = ({ organizationStore, ruleStore }: IOrganizationP
             >
               <Input placeholder="Tên đăng nhập" />
             </Form.Item>
-            <Form.Item label="Mật khẩu" name="password" rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}>
-              <Input.Password type="password" placeholder="Mật khẩu" />
-            </Form.Item>
+            {!selectedUser ? (
+              <>
+                <Form.Item
+                  label="Mật khẩu"
+                  name="password"
+                  rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+                >
+                  <Input.Password type="password" placeholder="Mật khẩu" />
+                </Form.Item>
 
-            <Form.Item
-              name="confirmPassword"
-              label="Xác nhận mật khẩu"
-              dependencies={['password']}
-              rules={[
-                { required: true, message: 'Vui lòng xác nhận lại mật khẩu' },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue('password') === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(new Error('Mật khẩu không khớp'));
-                  },
-                }),
-              ]}
-            >
-              <Input.Password type="password" placeholder="Xác nhận mật khẩu" />
-            </Form.Item>
+                <Form.Item
+                  label="Xác nhận mật khẩu"
+                  name="confirmPassword"
+                  dependencies={['password']}
+                  rules={[
+                    { required: true, message: 'Vui lòng xác nhận lại mật khẩu' },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue('password') === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error('Mật khẩu không khớp'));
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password type="password" placeholder="Xác nhận mật khẩu" />
+                </Form.Item>
+              </>
+            ) : null}
+
             <Form.Item
               name="birthday"
               label="Ngày sinh"
