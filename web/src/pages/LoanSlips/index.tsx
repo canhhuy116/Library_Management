@@ -45,7 +45,7 @@ const LoanSlips = ({ loanSlipStore, bookStore, memberStore }: ILoanSlipsProps) =
     if (!memberStore?.memberData.length) {
       memberStore?.getAll();
     }
-  }, [bookStore, memberStore, getLoanSlipsData]);
+  }, []);
 
   useEffect(() => {
     setLoanSlipsData(loanSlipStore?.loanSlips);

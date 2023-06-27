@@ -49,7 +49,7 @@ const Books: React.FC = ({ bookStore, ruleStore }: IBooksProps) => {
   };
 
   useEffect(() => {
-    bookStore?.booksData.length ? setBooksLoading(false) : getAllBooks();
+    getAllBooks();
   }, []);
 
   useEffect(() => {

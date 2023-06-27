@@ -46,8 +46,8 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
   };
 
   useEffect(() => {
-    memberStore?.memberData?.length ? setMembersLoading(false) : getAllMembers();
-  }, [memberStore]);
+    getAllMembers();
+  }, []);
 
   useEffect(() => {
     setMembersData(memberStore?.memberData);
