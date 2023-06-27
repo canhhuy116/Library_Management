@@ -4,6 +4,7 @@ import '@/assets/scss/pages/home.scss';
 import { inject } from 'mobx-react';
 import Stores from '@/store';
 import RuleStore from '@/store/ruleStore';
+import { useAuthUser } from 'react-auth-kit';
 
 interface IRuleProps {
   ruleStore?: RuleStore;
@@ -14,6 +15,8 @@ const Rule = ({ ruleStore }: IRuleProps) => {
   const [dataSourceRule, setDataSourceRule] = useState<any>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [updateRuleForm] = Form.useForm();
+  const auth = useAuthUser();
+  const user: any = auth();
 
   const getRuleData = async () => {
     try {
@@ -32,13 +35,13 @@ const Rule = ({ ruleStore }: IRuleProps) => {
     setDataSourceRule([
       {
         key: '1',
-        minMemberAge: ruleStore?.ruleData.minMemberAge,
-        maxMemberAge: ruleStore?.ruleData.maxMemberAge,
-        periodValidCard: ruleStore?.ruleData.periodValidCard,
-        categoryBooks: ruleStore?.ruleData.categoryBooks ? ruleStore?.ruleData.categoryBooks.join(', ') : '',
-        publicationYearGap: ruleStore?.ruleData.publicationYearGap,
-        maxBookCanBorrow: ruleStore?.ruleData.maxBookCanBorrow,
-        maxDayCanBorrow: ruleStore?.ruleData.maxDayCanBorrow,
+        minMemberAge: ruleStore?.ruleData.min_age,
+        maxMemberAge: ruleStore?.ruleData.max_age,
+        periodValidCard: ruleStore?.ruleData.time_effective_card,
+        categoryBooks: ruleStore?.ruleData.detail_category ? ruleStore?.ruleData.detail_category.join(', ') : '',
+        publicationYearGap: ruleStore?.ruleData.distance_year,
+        maxBookCanBorrow: ruleStore?.ruleData.max_items_borrow,
+        maxDayCanBorrow: ruleStore?.ruleData.max_day_borrow,
       },
     ]);
   }, [ruleStore?.ruleData]);
@@ -106,9 +109,11 @@ const Rule = ({ ruleStore }: IRuleProps) => {
   return (
     <>
       <Typography.Title level={2}>Quy định thư viện</Typography.Title>
-      <Button type="primary" onClick={viewToUpdateRule}>
-        Cập nhật quy định
-      </Button>
+      {user === ruleStore?.owner && (
+        <Button type="primary" onClick={viewToUpdateRule}>
+          Cập nhật quy định
+        </Button>
+      )}
       <Modal
         title="Basic Modal"
         open={isModalVisible}

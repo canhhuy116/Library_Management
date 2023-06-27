@@ -277,7 +277,7 @@ const Books: React.FC = ({ bookStore, ruleStore }: IBooksProps) => {
               rules={[{ required: true, message: 'Vui lòng nhập thể loại sách' }]}
             >
               <Select placeholder="Thể loại" allowClear>
-                {ruleStore?.ruleData?.categoryBooks?.map((cat: string) => (
+                {ruleStore?.ruleData?.detail_category?.map((cat: string) => (
                   <Select.Option key={cat} value={cat}>
                     {cat}
                   </Select.Option>

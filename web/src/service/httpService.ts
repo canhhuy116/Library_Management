@@ -25,4 +25,13 @@ http.interceptors.request.use(config => {
   return config;
 });
 
+// Add an error interceptor to display an alert with the error message
+http.interceptors.response.use(
+  response => response,
+  error => {
+    alert(error.message);
+    return Promise.reject(error);
+  },
+);
+
 export default http;

@@ -6,14 +6,17 @@ import dayjs from 'dayjs';
 import { inject } from 'mobx-react';
 import Stores from '@/store';
 import OrganizationStore, { IUser } from '@/store/organizationStore';
+import { useAuthUser } from 'react-auth-kit';
+import RuleStore from '@/store/ruleStore';
 
 const { Search } = Input;
 
 interface IOrganizationProps {
   organizationStore?: OrganizationStore;
+  ruleStore?: RuleStore;
 }
 
-const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
+const Organization: React.FC = ({ organizationStore, ruleStore }: IOrganizationProps) => {
   const [usersData, setUsersData] = useState<IUser[]>();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -21,6 +24,12 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [organizationLoading, setOrganizationLoading] = useState(true);
+  const auth = useAuthUser();
+  const user: any = auth();
+
+  if (user !== null && user !== ruleStore?.owner) {
+    return <Typography.Title level={2}>Bạn không phải là Admin</Typography.Title>;
+  }
 
   const getAll = async () => {
     try {
@@ -39,10 +48,6 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
   useEffect(() => {
     setUsersData(organizationStore?.organizationData);
   }, [organizationStore?.organizationData]);
-
-  if (organizationStore?.organizationData?.response?.status === 404) {
-    return <Typography.Title level={2}>Bạn không phải là Admin</Typography.Title>;
-  }
 
   const columns = [
     {
@@ -199,7 +204,7 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
       )
     : usersData;
 
-  const currentPageData = filteredData?.slice(startIndex, endIndex);
+  const currentPageData = filteredData ? filteredData?.slice(startIndex, endIndex) : [];
 
   return (
     <div className="organization">
@@ -328,4 +333,4 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
   );
 };
 
-export default inject(Stores.OrganizationStore)(Organization);
+export default inject(Stores.OrganizationStore, Stores.RuleStore)(Organization);
