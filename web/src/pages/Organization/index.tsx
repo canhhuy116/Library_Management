@@ -40,6 +40,10 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
     setUsersData(organizationStore?.organizationData);
   }, [organizationStore?.organizationData]);
 
+  if (organizationStore?.organizationData?.response?.status === 404) {
+    return <Typography.Title level={2}>Bạn không phải là Admin</Typography.Title>;
+  }
+
   const columns = [
     {
       title: 'STT',
@@ -53,8 +57,8 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
     },
     {
       title: 'Số điện thoại',
-      dataIndex: 'phone',
-      key: 'phone',
+      dataIndex: 'numberphone',
+      key: 'numberphone',
     },
     {
       title: 'Email',
@@ -120,12 +124,12 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
         name: values.name,
         username: values.username,
         password: values.password,
-        birthday: values.birthday?.toDate(),
+        dob: values.birthday?.toDate(),
         address: values.address,
         email: values.email,
-        phone: values.phone,
+        numberphone: values.phone,
       };
-      setUsersData(usersData ? [...usersData, newUser] : [newUser]);
+      await organizationStore?.createUser(newUser);
       newUserForm.resetFields();
       setIsModalVisible(false);
     });
@@ -139,10 +143,10 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
         name: values.name,
         username: values.username,
         password: values.password,
-        birthday: values.birthday?.toDate(),
+        dob: values.birthday?.toDate(),
         address: values.address,
         email: values.email,
-        phone: values.phone,
+        numberphone: values.phone,
       };
       let updatedUsersData: IUser[] | undefined;
       if (usersData) {
@@ -170,8 +174,8 @@ const Organization: React.FC = ({ organizationStore }: IOrganizationProps) => {
       password: '',
       address: user.address,
       email: user.email,
-      birthday: user.birthday ? dayjs(user.birthday) : null,
-      phone: user.phone,
+      birthday: user.dob ? dayjs(user.dob) : null,
+      phone: user.numberphone,
     });
   };
 

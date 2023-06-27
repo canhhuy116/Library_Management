@@ -6,21 +6,31 @@ export interface IUser {
   id: number;
   name: string;
   username: string;
-  birthday: dayjs.Dayjs;
+  dob: dayjs.Dayjs;
   address: string;
   email: string;
-  phone: string;
+  numberphone: string;
 }
 
 class OrganizationStore {
-  @observable organizationData: IUser[] = [];
+  @observable organizationData: IUser[] | any = [];
 
   @action getAllUser = async () => {
     try {
       const result = await organizationService.getAllUser();
-      this.organizationData = result.organization;
+      this.organizationData = result;
     } catch (error) {
       console.error('Error fetching organization:', error);
+    }
+  };
+
+  @action createUser = async (user: IUser) => {
+    try {
+      const result = await organizationService.createUser(user);
+      this.organizationData.push(result);
+      return result;
+    } catch (error) {
+      console.error('Error creating new organization:', error);
     }
   };
 }
