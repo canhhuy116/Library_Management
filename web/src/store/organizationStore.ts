@@ -13,7 +13,7 @@ export interface IUser {
 }
 
 class OrganizationStore {
-  @observable organizationData: IUser[] | any = [];
+  @observable organizationData: IUser[] = [];
 
   @action getAllUser = async () => {
     try {

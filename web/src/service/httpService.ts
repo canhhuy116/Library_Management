@@ -29,7 +29,12 @@ http.interceptors.request.use(config => {
 http.interceptors.response.use(
   response => response,
   error => {
-    alert(error.message);
+    console.log(error);
+    if (error.response.status === 404) {
+      alert('Bạn không có quyền truy cập tài nguyên này!\n Hãy liên hệ với quản trị viên để được cấp quyền truy cập!');
+    } else {
+      alert(error.message);
+    }
     return Promise.reject(error);
   },
 );
