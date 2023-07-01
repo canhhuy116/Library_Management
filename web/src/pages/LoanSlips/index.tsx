@@ -58,9 +58,13 @@ const LoanSlips = ({ loanSlipStore, bookStore, memberStore }: ILoanSlipsProps) =
       key: 'id',
     },
     {
-      title: 'Mã người mượn',
+      title: 'Tên độc giả',
       dataIndex: 'borrowerId',
       key: 'borrowerId',
+      render: (borrowerId: number) => {
+        const member = memberStore?.memberData.find(member => member.id === borrowerId);
+        return member?.name;
+      },
     },
     {
       title: 'Số sách mượn',
@@ -169,6 +173,7 @@ const LoanSlips = ({ loanSlipStore, bookStore, memberStore }: ILoanSlipsProps) =
             <Select
               placeholder="Mã độc giả"
               allowClear
+              showSearch
               onSearch={setSearchMemberKeyword} // Update the search keyword when input changes
             >
               {memberStore?.memberData

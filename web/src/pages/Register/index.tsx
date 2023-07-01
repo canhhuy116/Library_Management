@@ -1,4 +1,4 @@
-import { Form, Input, Button, Avatar, Col, Row, DatePicker } from 'antd';
+import { Form, Input, Button, Avatar, Col, Row, DatePicker, notification } from 'antd';
 import AppLogo from '@/assets/images/logo.png';
 import { AimOutlined, LockOutlined, MailOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
@@ -11,7 +11,13 @@ const RegisterPage = () => {
     console.log('Received values of form: ', values);
     const res = await authService.signup(values);
     if (res.username) {
-      alert('Đăng ký thành công');
+      notification.destroy('registerSuccess');
+      notification.success({
+        key: 'registerSuccess',
+        message: 'Đăng ký thành công',
+        description: 'Vui lòng đăng nhập để tiếp tục sử dụng dịch vụ!',
+        placement: 'top',
+      });
       navigate('/auth/login');
     }
   };

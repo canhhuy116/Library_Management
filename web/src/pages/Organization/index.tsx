@@ -1,7 +1,7 @@
 import { Button, Card, DatePicker, Form, Input, Modal, Pagination, Popconfirm, Space, Table, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
 import '@/assets/scss/pages/organization.scss';
-import { DeleteOutlined, EditOutlined, FundViewOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { DeleteOutlined, FundViewOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { inject } from 'mobx-react';
 import Stores from '@/store';
@@ -42,8 +42,8 @@ const Organization: React.FC = ({ organizationStore, ruleStore }: IOrganizationP
   };
 
   useEffect(() => {
-    organizationStore?.organizationData.length ? setOrganizationLoading(false) : getAll();
-  }, [organizationStore]);
+    getAll();
+  }, []);
 
   useEffect(() => {
     setUsersData(organizationStore?.organizationData);

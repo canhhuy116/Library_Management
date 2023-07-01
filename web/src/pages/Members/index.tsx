@@ -11,6 +11,7 @@ import {
   Space,
   Table,
   Typography,
+  notification,
 } from 'antd';
 import React, { useEffect, useState } from 'react';
 import '@/assets/scss/pages/members.scss';
@@ -55,7 +56,7 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
 
   const columns = [
     {
-      title: 'STT',
+      title: 'Mã độc giả',
       dataIndex: 'id',
       key: 'id',
     },
@@ -135,7 +136,13 @@ const Members: React.FC = ({ memberStore }: IMembersProps) => {
       };
       const result = await memberStore?.createNewMember(newMember);
       if (result.status_code && result.status_code === 422) {
-        alert(result.detail);
+        notification.destroy('ageError');
+        notification.error({
+          key: 'ageError',
+          message: 'Tuổi không hợp lệ',
+          description: 'Tuổi không hợp lệ, vui lòng kiểm tra quy định về tuổi của độc giả',
+          duration: 5,
+        });
       }
       newMemberForm.resetFields();
       setIsModalVisible(false);
